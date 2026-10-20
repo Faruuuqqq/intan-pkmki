@@ -1,0 +1,139 @@
+========================================================================
+DOKUMEN TEKNIS
+INTAN (Inovasi Termal Adaptif Nusantara)
+TRANSFORMASI PRODUKSI KEMPLANG TUNU MELALUI SMART ROTARY ROASTER 
+BERBASIS MIKROKONTROLER
+========================================================================
+
+BAB I. PENDAHULUAN
+------------------------------------------------------------------------
+1.1 Ringkasan Isi Dokumen
+Dokumen ini memberikan gambaran mendalam mengenai spesifikasi sistem yang diusulkan dan diimplementasikan dalam pengembangan produk INTAN, mencakup solusi mekanik dan elektronik sebagai panduan inti perancangan dan manufaktur.
+
+1.2 Tujuan Penulisan, Aplikasi, dan Fungsi
+Menjelaskan rincian spesifikasi teknis, berfungsi sebagai acuan utama perancangan sistem, dan memenuhi persyaratan komponen luaran PKM Karya Inovatif.
+
+1.3 Deskripsi Produk
+INTAN adalah perangkat cerdas untuk pelaku UMKM kemplang tunu guna meningkatkan kapasitas produksi pemanggangan menggunakan bara arang. Dilengkapi mekanisme pembalik otomatis 6-titik, kendali histeresis sirkulasi udara, dan pemantauan suhu real-time.
+
+1.4 Prinsip Kerja Mekanisme Pembalik Otomatis (Rotary Gripper)
+Rak penjepit cerdas memutar kemplang secara bolak-balik otomatis. Manfaat: kematangan merata, meminimalkan risiko produk rusak/melengkung, dan membebaskan operator dari paparan asap/panas.
+
+1.5 Sistem Kendali Termal dan Histeresis
+Mendeteksi suhu bara api. Blower akan menyala otomatis jika suhu turun dan akan mati sendiri jika suhu optimal agar kemplang tidak gosong. Menghemat bahan bakar dan kualitas panggangan seragam.
+
+1.6 Alur Kerja Karya Inovatif
+Menggunakan arsitektur kerja tertutup parsial (partial closed-loop). Mikrokontroler Arduino Nano mengeksekusi multi-tugas (menghitung siklus servo, menampilkan suhu di LCD, menyalakan/mematikan Relay blower) secara paralel (non-blocking timer).
+
+1.7 Target Pengguna
+1. Target Utama: Pelaku usaha/UMKM kemplang tunu skala rumah tangga hingga menengah.
+2. Target Skalabilitas: Pengrajin komoditas panggang lain (opak, sate bandeng, sosis, jagung bakar).
+
+1.8 Manfaat Karya Inovatif
+- Kuantitatif: Peningkatan kapasitas 500-575% (dari 80 keping/jam menjadi 480-540 keping/jam), penurunan produk cacat dari 15-30% menjadi <5%, nilai keekonomian tinggi.
+- Kualitatif: Kematangan merata (>95%) dengan reaksi Maillard optimal, serta peningkatan K3 (Keselamatan dan Kesehatan Kerja) bagi operator.
+
+
+BAB II. SPESIFIKASI TEKNIS
+------------------------------------------------------------------------
+2.1 & 2.2 Dimensi dan Spesifikasi Umum
+- Lebar: 30 cm | Tinggi: 20 cm (10 cm tinggi kotak elektronik) | Panjang: 124 cm
+- Berat Total: 25 Kg (Sistem portabilitas: compact benchtop design).
+- Material: Stainless Steel SUS 304.
+
+2.3 & 2.4 Spesifikasi Komponen Elektronika & Mekanik
+- Mikrokontroler Utama: Arduino Nano V3.0 (ATmega328P, 16MHz, 5V).
+- Sensor Suhu: MAX6675 dengan Thermocouple Tipe-K (0-1024°C, akurasi 0.25°C).
+- Antarmuka Display: LCD 2004 (20x4 karakter) dengan modul I2C.
+- Pengendali Daya: Relay 2 Channel 5V & PWM AC Dimmer Module (AC 220V, Max 2000W).
+- Blower Udara: Blower Keong Sentrifugal (150 Watt, 220V, 3000 RPM, 2 Inch).
+- Motor Penggerak Rotasi: Servo TowerPro MG996R (Metal Gear, Stall Torque 12kg/cm).
+
+2.5 Daftar Komponen (BoM)
+- Arduino Nano (1x), LCD 20x4 I2C (1x), Relay 2-Channel (1x), PWM AC Dimmer (1x), PSU Switching 5V/10A (1x).
+- Motor Servo MG996R (6x), Blower 150W (2x), MAX6675+Thermocouple (1x).
+- Rangka & Rak: Pelat & Kawat Stainless Steel SUS 304.
+
+
+BAB III. DESAIN KONSEP
+------------------------------------------------------------------------
+3.1 Logo dan Identitas Visual
+Tipografi tegas (keandalan), Simbol dinamis belah ketupat bergelombang (sinergi rotasi dan panas), Warna Jingga (termal/inovasi), Abu-abu (bodi kokoh & food-grade).
+
+3.2 Desain Elektronika
+Menggunakan Strategi Isolasi 3-Zona Kelistrikan untuk mencegah interferensi/EMI:
+1. Zona Arus Kuat (AC 220V): Steker, sakelar, relay, dimmer, blower.
+2. Zona Daya DC (5V/10A): PSU Switching khusus untuk menyuplai 6 motor servo.
+3. Zona Logika/Sinyal (DC 5V Low Power): Arduino, MAX6675, LCD (komunikasi SPI, I2C, PWM).
+
+3.4 Logika Kendali dan Arsitektur Perangkat Lunak
+- Arsitektur Non-Blocking: Menggunakan fungsi millis() alih-alih delay() agar sistem bisa multitasking tanpa lag.
+- Kendali Histeresis Suhu: Batas atas/mati pada 600°C, Batas bawah/nyala pada 550°C. Mencegah relay chattering.
+- Gerakan Asinkron Berurutan: Menggunakan delay mikro (staggered movement) saat memutar 6 servo untuk meredam lonjakan arus (inrush current) yang bisa me-reset mikrokontroler.
+
+
+BAB IV. PENGGUNAAN ALAT
+------------------------------------------------------------------------
+4.1 Panduan K3 (Keselamatan Kerja)
+Waspada suhu tinggi (gunakan sarung tangan anti-panas), pastikan grounding listrik (arde) baik, pastikan ventilasi udara terbuka untuk pembuangan gas CO.
+
+4.2 & 4.3 Instalasi dan Tahapan Penggunaan (SOP)
+- Fase 1 (Persiapan): Inspeksi alat, pasang rak pada servo, kencangkan pengunci, hubungkan daya dan uji kalibrasi rotasi.
+- Fase 2 (Bahan Bakar): Isi briket pada laci (jangan terlalu penuh), pasang laci, nyalakan arang dengan blow torch hingga stabil.
+- Fase 3 (Otomasi): Atur posisi termokopel, sesuaikan hembusan kipas via dimmer. Muat kemplang dengan capitan masak. Mesin akan memanggang otomatis (sekitar 48 detik). Angkat jika warna golden brown.
+- Fase 4 (Pasca Produksi): Matikan mesin, buang abu, bersihkan area pembakaran dan cuci rak penjepit.
+
+4.4 Parameter Standar Pemanggangan
+- Suhu ideal: 550°C - 600°C.
+- Waktu batch: 40-55 detik.
+- Rotasi: Otomatis 180 derajat tiap 15 detik.
+- Kapasitas: 6 keping/siklus.
+
+4.5 & 4.6 Darurat dan Do's & Don'ts
+- Jika darurat: Matikan sakelar, cabut steker, amankan kemplang, tarik laci arang. JANGAN menyiram air ke mesin panas.
+- Do's: Letakkan di tempat rata, pakai sarung tangan, bersihkan laci, gunakan stopkontak ber-arde.
+- Don'ts: Jangan tumpuk arang terlalu tinggi, jangan tahan servo secara manual, jangan basahi ECU.
+
+
+BAB V. MAINTENANCE ALAT
+------------------------------------------------------------------------
+5.1 Perawatan Berkala: Bersihkan sisa abu dari stainless steel dan blower, bersihkan debu dari servo.
+5.2 Kalibrasi: Posisikan probe termokopel dengan tepat, uji kalibrasi 180° servo sebelum proses api.
+5.3 Troubleshooting: 
+  - LCD Blank: Cek adaptor/steker.
+  - Blower tidak merespon: Cek sensor MAX6675 & kabel relay.
+  - Servo Jitter/Macet: Beri pelumas engsel, kurangi beban berlebih.
+  - Kemplang gosong: Ratakan tumpukan arang, kurangi suhu.
+5.4 Garansi: Tukar baru (7 hari), Garansi komponen elektronik (3 bulan), Rangka mekanik & Jasa Servis (1 tahun).
+
+
+BAB VI. PROSES PRODUKSI
+------------------------------------------------------------------------
+Alur: (1) Pemotongan material, (2) Pengelasan/Welding stainless steel, (3) Perakitan mekanik, (4) Instalasi kelistrikan (3 zona), (5) Pemrograman Firmware Non-Blocking, (6) Uji Kendali Mutu (Stress Test 5 Jam).
+
+
+BAB VII. PERFORMA PERANGKAT
+------------------------------------------------------------------------
+- Pengurangan Cacat: Dari 15-30% menjadi <5%.
+- Keseragaman: >95% (Waktu rata-rata 46,5 detik per batch pada suhu rata-rata 547,72°C).
+- Stress Test: Tahan uji 5 jam tanpa henti, suhu ECU stabil di bawah 48°C.
+- Kapasitas: Meningkat dari 80-100 menjadi 400-420 keping per jam (+500%).
+
+
+BAB VIII. TINGKAT INOVASI
+------------------------------------------------------------------------
+- Novelty: Mekanisme Staggered Rotary Gripper 6-Servo (anti-voltage dip) dan Kendali Histeresis Hibrida Arang-Listrik.
+- TKT: Mencapai Level 8 (Sistem lengkap teruji di lingkungan riil, komplit 80%).
+- HKI: Surat Pencatatan Ciptaan (Hak Cipta) telah terbit (No. EC00202449076).
+
+
+BAB IX & X. IMPLEMENTASI DAN KESIMPULAN
+------------------------------------------------------------------------
+- Implementasi: Terdapat dokumentasi video demonstrasi dan operasional penggunaan alat.
+- Kesimpulan: Mesin INTAN sukses difabrikasi, efektif menurunkan produk cacat, dan menaikkan kapasitas 500-575%.
+- Rekomendasi Lanjutan: Pembuatan modul Auto-Feeder, Integrasi modul IoT (ESP32) untuk pemantauan via HP, dan penyesuaian capitan untuk komoditas lain (jagung/sosis).
+
+------------------------------------------------------------------------
+UCAPAN TERIMAKASIH
+Kepada Direktorat Jenderal Belmawa Kemdikbudristek (Pemberi Dana PKM 2024), Universitas Padjadjaran, dan Dosen Pembimbing.
+========================================================================

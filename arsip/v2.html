@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTAN — Smart Rotary Roaster | PKM-KI Universitas Padjadjaran 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        charcoal: {
+                            950: '#120B0A',
+                            900: '#1C1412',
+                            800: '#2D1A16',
+                            700: '#4A1212',
+                        },
+                        thermal: {
+                            500: '#EA580C',
+                            400: '#FB923C',
+                            600: '#C2410C',
+                        },
+                        ember: {
+                            400: '#FACC15',
+                            500: '#F59E0B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #120B0A;
+            color: #F8FAFC;
+            overflow-x: hidden;
+        }
+
+        .thermal-gradient {
+            background: radial-gradient(circle at 50% 45%, rgba(234, 88, 12, 0.24) 0%, rgba(74, 18, 18, 0.15) 45%, rgba(18, 11, 10, 0.95) 85%);
+        }
+
+        .ember-card {
+            background: linear-gradient(145deg, rgba(45, 26, 22, 0.78) 0%, rgba(28, 20, 18, 0.92) 100%);
+            backdrop-filter: blur(12px);
+        }
+
+        .lcd-screen {
+            background: linear-gradient(180deg, #023e8a 0%, #002855 100%);
+            box-shadow: inset 0 0 12px rgba(0, 180, 216, 0.6), 0 0 15px rgba(0, 119, 182, 0.35);
+            text-shadow: 0 0 6px rgba(144, 224, 239, 0.85);
+        }
+
+        #roaster3dCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        #roaster3dCanvas:active {
+            cursor: grabbing;
+        }
+
+        @keyframes pulseEmber {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 8px rgba(234, 88, 12, 0.6));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 18px rgba(250, 204, 21, 0.9));
+            }
+        }
+
+        .ember-glow {
+            animation: pulseEmber 3s infinite ease-in-out;
+        }
+
+        /* Custom range slider */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #EA580C;
+            border: 3px solid #FACC15;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(234, 88, 12, 0.8);
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-thermal-500 selection:text-white">
+
+    <div class="bg-charcoal-900/95 border-b border-orange-500/20 text-xs py-2 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/40 text-amber-300 font-semibold">
+                    🏛️ Kemdiktisaintek • Diktisaintek Berdampak
+                </span>
+                <span class="hidden md:inline text-slate-400">|</span>
+                <span class="text-slate-300 font-medium">Belmawa • PKM-KI 2026 • Universitas Padjadjaran</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1 text-emerald-400 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    TKT Level 8 Teruji
+                </span>
+                <span class="text-slate-500">|</span>
+                <span class="text-amber-400 font-mono">HKI: 001429332</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-40 bg-charcoal-950/85 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#hero" class="flex items-center gap-3 group">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-thermal-500 via-red-600 to-amber-500 p-0.5 shadow-lg shadow-orange-600/30">
+                    <div class="w-full h-full bg-charcoal-950 rounded-[10px] flex items-center justify-center">
+                        <!-- Custom SVG INTAN Diamond Flame Logo -->
+                        <svg class="w-6 h-6 text-thermal-400 group-hover:scale-110 transition-transform"
+                            viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2L3 12l9 10 9-10L12 2zm0 4.5c2.2 2.4 3.5 4.3 3.5 6.2 0 1.9-1.6 3.5-3.5 3.5s-3.5-1.6-3.5-3.5c0-1.9 1.3-3.8 3.5-6.2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-display font-extrabold text-xl tracking-wider text-white">INTAN</span>
+                        <span
+                            class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-thermal-500/20 text-thermal-400 border border-thermal-500/30">Smart
+                            Roaster</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">Inovasi Termal Adaptif Nusantara • Unpad</p>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden lg:flex items-center gap-5 text-sm font-medium text-slate-300">
+                <a href="#hero" class="hover:text-amber-400 transition">3D Digital Twin</a>
+                <a href="#latar-belakang" class="hover:text-amber-400 transition">Latar Belakang</a>
+                <a href="#spesifikasi" class="hover:text-amber-400 transition">Anatomi & Wiring</a>
+                <a href="#kinerja" class="hover:text-amber-400 transition">Uji Sampel & Kalkulator</a>
+                <a href="#sop"
+                    class="px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-400/40 text-amber-300 hover:bg-amber-500/25 transition font-semibold">
+                    📖 SOP 12 Langkah (QR 9.2)
+                </a>
+                <a href="#maintenance" class="hover:text-amber-400 transition">Perawatan & Garansi</a>
+                <a href="#luaran" class="hover:text-amber-400 transition">Luaran & Media</a>
+            </nav>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+                <button onclick="openVideoModal()"
+                    class="bg-thermal-500 hover:bg-thermal-600 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl shadow-lg shadow-orange-600/30 transition flex items-center gap-1.5">
+                    <span>🎬</span> <span class="hidden sm:inline">Video</span> Demo
+                </button>
+                <button onclick="toggleMobileMenu()"
+                    class="lg:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10"
+                    aria-label="Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobileMenu"
+            class="hidden lg:hidden bg-charcoal-900 border-b border-white/10 px-4 py-4 space-y-2 text-sm">
+            <a href="#hero" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-lg hover:bg-white/5">🧊 3D
+                Digital Twin Interaktif</a>
+            <a href="#latar-belakang" onclick="toggleMobileMenu()"
+                class="block py-2 px-3 rounded-lg hover:bg-white/5">🔥 Latar Belakang & Solusi</a>
+            <a href="#spesifikasi" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-lg hover:bg-white/5">⚙️
+                Anatomi, Material & Dimensi</a>
+            <a href="#kinerja" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-lg hover:bg-white/5">🧮 Uji 6
+                Sampel & Kalkulator UMKM</a>
+            <a href="#sop" onclick="toggleMobileMenu()"
+                class="block py-2 px-3 rounded-lg bg-amber-500/20 text-amber-300 font-semibold">📖 SOP 12 Langkah & K3
+                (QR Bab 9.2)</a>
+            <a href="#maintenance" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-lg hover:bg-white/5">🛡️
+                Perawatan, Troubleshooting & Garansi</a>
+            <a href="#luaran" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-lg hover:bg-white/5">🏆 HKI,
+                12 Media & Mitra UMKM</a>
+        </div>
+    </header>
+
+    <section id="hero"
+        class="relative thermal-gradient pt-6 pb-14 lg:py-12 border-b border-orange-500/20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+                <!-- Left Column: Hero Copywriting & Live LCD Telemetry -->
+                <div class="lg:col-span-5 space-y-5 z-10">
+                    <div
+                        class="inline-flex flex-wrap items-center gap-2 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-500/40 text-xs font-semibold text-amber-300">
+                        <span>🔥 Tematik PKM 2026: Kemandirian Pangan, Energi & Air</span>
+                    </div>
+
+                    <h1
+                        class="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight text-white">
+                        INTAN <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-red-500">(Inovasi
+                            Termal Adaptif Nusantara)</span>
+                    </h1>
+
+                    <p class="text-sm sm:text-base font-medium text-amber-200/90 leading-relaxed">
+                        Transformasi Produksi Kemplang Tunu melalui <strong>Smart Rotary Roaster Berbasis
+                            Mikrokontroler</strong>: Solusi Peningkatan Kapasitas hingga <span
+                            class="text-amber-400 font-bold underline decoration-orange-500">400–420 Keping/Jam</span>
+                        dan Standardisasi Mutu Produk Lokal Sumatera.
+                    </p>
+
+                    <!-- Simulated Live LCD 20x4 I2C Monitor Box -->
+                    <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700 shadow-2xl">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2">
+                            <span class="font-semibold flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                                LIVE SIMULASI LCD 20x4 I2C (MAX6675 + ARDUINO NANO)
+                            </span>
+                            <span class="font-mono text-emerald-400">ECU: 44.2°C (AMAN &lt;48°C)</span>
+                        </div>
+                        <div
+                            class="lcd-screen rounded-xl p-3 font-mono text-xs sm:text-sm text-cyan-100 space-y-1 border-2 border-slate-800">
+                            <div class="flex justify-between">
+                                <span>INTAN SMART ROASTER</span>
+                                <span id="lcdModeText" class="text-amber-300 font-bold">[AUTO-ROAST]</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>SUHU BARA : <strong id="lcdTempValue" class="text-white">578.4 C</strong></span>
+                                <span id="lcdHysteresisTag" class="text-emerald-300">IDEAL</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>2x BLOWER : <strong id="lcdBlowerState" class="text-emerald-300">ON (PWM
+                                        85%)</strong></span>
+                                <span>CUT: &ge;600C</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>6x SERVO : <strong id="lcdServoAngle" class="text-amber-200">POS 0&deg;
+                                        (15s)</strong></span>
+                                <span id="lcdTimerText">T: 12s / 47s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Primary & Secondary CTAs -->
+                    <div class="flex flex-wrap gap-3 pt-1">
+                        <button onclick="openVideoModal()"
+                            class="flex-1 sm:flex-initial justify-center bg-gradient-to-r from-thermal-500 to-red-600 hover:from-thermal-600 hover:to-red-700 text-white font-bold px-5 py-3.5 rounded-xl shadow-xl shadow-orange-600/30 transition flex items-center gap-2 text-sm">
+                            <span>🎬</span> Tonton Video Demo Alat
+                        </button>
+                        <a href="#sop"
+                            class="flex-1 sm:flex-initial justify-center bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-5 py-3.5 rounded-xl transition flex items-center gap-2 text-sm">
+                            <span>📖</span> Buka Panduan SOP (12 Langkah)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive 3D Three.js CAD Digital Twin -->
+                <div class="lg:col-span-7">
+                    <div class="relative rounded-3xl ember-card border border-orange-500/30 shadow-2xl overflow-hidden">
+
+                        <!-- Top 3D Status Bar -->
+                        <div
+                            class="px-4 py-3 bg-charcoal-950/90 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="px-2.5 py-1 rounded-lg bg-orange-500/20 border border-orange-500/40 text-amber-300 text-xs font-bold flex items-center gap-1.5">
+                                    🧊 3D DIGITAL TWIN STUDIO (PRESISI RENDER STILL 1–3)
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="btnStudioBg" onclick="toggleStudioLighting()"
+                                    class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-semibold text-amber-300 border border-amber-400/30 transition flex items-center gap-1">
+                                    <span>☀️</span> Latar: Studio Putih (Still 1)
+                                </button>
+                                <button id="btnAutoOrbit" onclick="toggleAutoTurntable()"
+                                    class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/15 text-[11px] font-medium text-slate-300 border border-white/10 transition">
+                                    🔄 Putar 360°: OFF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3D WebGL Canvas Container -->
+                        <div id="canvasContainer"
+                            class="relative w-full h-[400px] sm:h-[460px] transition-colors duration-500"
+                            style="background: radial-gradient(circle at 50% 45%, #f4f1ea 0%, #dcd7cd 100%);">
+                            <canvas id="roaster3dCanvas"></canvas>
+
+                            <!-- Floating Active Component Info Overlay inside 3D View -->
+                            <div id="hotspotOverlayCard"
+                                class="absolute top-3 left-3 right-3 sm:right-auto sm:max-w-xs bg-charcoal-950/90 backdrop-blur-md border border-amber-500/40 rounded-2xl p-3.5 shadow-xl transition-all duration-300 pointer-events-none">
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <span id="hotspotBadge"
+                                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-thermal-500 text-white">Presisi
+                                        3D Render</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">6 Servo • 2 Blower</span>
+                                </div>
+                                <h3 id="hotspotTitle" class="font-display font-bold text-sm text-amber-300">INTAN Smart
+                                    Rotary Roaster (Skala 1:1)</h3>
+                                <p id="hotspotDesc" class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                    Geser untuk memutar 360°. Pilih sudut kamera <strong>Still 1, Still 2, atau Still
+                                        3</strong> di kanan bawah atau jalankan simulasi mekanis di panel bawah.
+                                </p>
+                            </div>
+
+                            <!-- Camera Angle Quick Presets Matching Still 1, Still 2, Still 3 -->
+                            <div
+                                class="absolute bottom-3 right-3 left-3 sm:left-auto flex flex-wrap justify-end gap-1.5 bg-charcoal-950/90 backdrop-blur-md p-1.5 rounded-xl border border-white/15 shadow-lg">
+                                <button onclick="setCameraView('still1')"
+                                    class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-thermal-500 text-white transition">📸
+                                    Still 1 (Isometrik)</button>
+                                <button onclick="setCameraView('still2')"
+                                    class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white/10 hover:bg-thermal-500 text-slate-200 hover:text-white transition">⬆️
+                                    Still 2 (Tampak Atas)</button>
+                                <button onclick="setCameraView('still3')"
+                                    class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white/10 hover:bg-thermal-500 text-slate-200 hover:text-white transition">🔍
+                                    Still 3 (Close-Up Rak &amp; ECU)</button>
+                                <button onclick="setCameraView('front')"
+                                    class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-thermal-500 text-slate-300 hover:text-white transition">Depan
+                                    (Laci)</button>
+                            </div>
+                        </div>
+
+                        <!-- Interactive 3D Animation & Mechanical Controls Dock -->
+                        <div class="p-4 bg-charcoal-950/95 border-t border-white/10 space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">⚡ Studio
+                                    Animasi Mekanis &amp; Termal 3D:</span>
+                                <div class="flex items-center gap-3 w-full sm:w-auto">
+                                    <label for="servoAngleSlider"
+                                        class="text-[11px] text-slate-300 font-mono whitespace-nowrap">Sudut Rak (<span
+                                            id="servoSliderVal" class="text-amber-400 font-bold">0°</span>):</label>
+                                    <input id="servoAngleSlider" type="range" min="0" max="180" value="0"
+                                        oninput="manualServoSlide(this.value)"
+                                        class="w-full sm:w-32 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button id="btnFlipServo" onclick="triggerManualFlip()"
+                                    class="px-3 py-2 rounded-xl bg-thermal-500/20 hover:bg-thermal-500 border border-thermal-500/50 text-amber-200 hover:text-white text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                    <span>🔄</span> Flip 6 Servo 180°
+                                </button>
+                                <button id="btnDrawer" onclick="toggleDrawers()"
+                                    class="px-3 py-2 rounded-xl bg-white/5 hover:bg-amber-500/20 border border-white/15 text-slate-200 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                    <span>🗄️</span> Tarik Laci Arang
+                                </button>
+                                <button id="btnHood" onclick="toggleServoHood()"
+                                    class="px-3 py-2 rounded-xl bg-white/5 hover:bg-amber-500/20 border border-white/15 text-slate-200 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                    <span>🛠️</span> Buka Kap 6 Servo
+                                </button>
+                                <button id="btnBlowerSim" onclick="toggleHysteresisCutoff()"
+                                    class="px-3 py-2 rounded-xl bg-white/5 hover:bg-emerald-500/20 border border-white/15 text-slate-200 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                    <span>🌡️</span> Uji Cut-Off &ge;600°C
+                                </button>
+                            </div>
+
+                            <!-- 5 Clickable Component Hotspots -->
+                            <div class="pt-1 flex flex-wrap items-center justify-between gap-1.5">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button onclick="focusHotspot(1)"
+                                        class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-amber-500/20 transition">1.
+                                        Penjepit Kawat U-Loop</button>
+                                    <button onclick="focusHotspot(2)"
+                                        class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-amber-500/20 transition">2.
+                                        6x Servo MG996R</button>
+                                    <button onclick="focusHotspot(3)"
+                                        class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-amber-500/20 transition">3.
+                                        Bara Arang &amp; Termokopel</button>
+                                    <button onclick="focusHotspot(4)"
+                                        class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-amber-500/20 transition">4.
+                                        LCD &amp; 2 Knob Dimmer</button>
+                                    <button onclick="focusHotspot(5)"
+                                        class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-amber-500/20 transition">5.
+                                        Dual Blower + Kabel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="ember-card p-5 rounded-2xl border border-amber-500/30 relative overflow-hidden">
+                    <div class="text-xs text-amber-300/80 font-semibold uppercase tracking-wider">Kapasitas Produksi
+                    </div>
+                    <div class="font-display font-extrabold text-2xl sm:text-3xl text-amber-400 mt-1">400–420 <span
+                            class="text-base font-normal text-slate-300">Keping/Jam</span></div>
+                    <div class="text-xs text-emerald-400 mt-1 font-medium">⬆️ Naik &gt;400% vs Manual (80–100/jam)</div>
+                </div>
+                <div class="ember-card p-5 rounded-2xl border border-emerald-500/30">
+                    <div class="text-xs text-emerald-300/80 font-semibold uppercase tracking-wider">Tingkat Produk Cacat
+                    </div>
+                    <div class="font-display font-extrabold text-2xl sm:text-3xl text-emerald-400 mt-1">&lt; 5% <span
+                            class="text-base font-normal text-slate-300">Defect Rate</span></div>
+                    <div class="text-xs text-slate-300 mt-1">Kendali Histeresis Cegah Gosong</div>
+                </div>
+                <div class="ember-card p-5 rounded-2xl border border-orange-500/30">
+                    <div class="text-xs text-orange-300/80 font-semibold uppercase tracking-wider">Waktu Matang / Batch
+                    </div>
+                    <div class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1">46,5 <span
+                            class="text-base font-normal text-slate-300">Detik</span></div>
+                    <div class="text-xs text-amber-300 mt-1">Rentang 45–48 Detik (6 Sampel/Batch)</div>
+                </div>
+                <div class="ember-card p-5 rounded-2xl border border-cyan-500/30">
+                    <div class="text-xs text-cyan-300/80 font-semibold uppercase tracking-wider">Kesiapterapan &amp;
+                        Legalitas</div>
+                    <div class="font-display font-extrabold text-2xl sm:text-3xl text-cyan-400 mt-1">TKT Level 8</div>
+                    <div class="text-xs text-slate-300 mt-1">HKI No. 001429332 &amp; Paten Terdaftar</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="latar-belakang" class="py-16 bg-charcoal-950 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-thermal-400">Bagian 1 • Latar Belakang
+                    &amp; Urgensi Inovasi</span>
+                <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-white mt-2">
+                    Menjaga Tradisi Bara Arang Sumatera Selatan dengan Otomasi Tepat Guna
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-3">
+                    Kemplang tunu adalah kerupuk khas Sumatera Selatan (Ogan Ilir &amp; Palembang) berbahan ikan, tepung
+                    tapioka, dan rempah yang dipanggang di atas bara arang untuk menghasilkan cita rasa <em>smoky</em>
+                    autentik (Isnaini et al., 2020; Santoso et al., 2021; Ismail et al., 2022).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- Macro Data BPS -->
+                <div class="ember-card p-6 rounded-2xl border border-white/10">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl mb-4">
+                        🏭</div>
+                    <div class="text-amber-400 font-display font-extrabold text-3xl">77.678 IMK</div>
+                    <h3 class="font-bold text-white text-lg mt-1">Potensi Industri Mikro &amp; Kecil</h3>
+                    <p class="text-slate-300 text-sm mt-2 leading-relaxed">
+                        Sumatera Selatan memiliki <strong>77.678 industri mikro dan kecil</strong> pada 2024. Penguatan
+                        teknologi produksi sangat diperlukan untuk mendukung usaha pangan lokal agar naik kelas (BPS
+                        Provinsi Sumatera Selatan, 2026).
+                    </p>
+                </div>
+
+                <!-- Manual Bottleneck -->
+                <div class="ember-card p-6 rounded-2xl border border-red-500/30">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-2xl mb-4">
+                        ⏱️🔥</div>
+                    <div class="text-red-400 font-display font-extrabold text-3xl">80–100 Keping/Jam</div>
+                    <h3 class="font-bold text-white text-lg mt-1">Kendala Pemanggangan Manual</h3>
+                    <p class="text-slate-300 text-sm mt-2 leading-relaxed">
+                        Pemanggangan konvensional memiliki <strong>suhu termal tidak stabil</strong>, pengawasan harus
+                        intensif, dan pembalikan manual yang memicu <strong>kelelahan fisik</strong> operator serta
+                        risiko kemplang cacat/gosong <strong>2–10%</strong>.
+                    </p>
+                </div>
+
+                <!-- INTAN Solution -->
+                <div class="ember-card p-6 rounded-2xl border border-emerald-500/30">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
+                        🤖⚙️</div>
+                    <div class="text-emerald-400 font-display font-extrabold text-3xl">Otomasi Adaptif</div>
+                    <h3 class="font-bold text-white text-lg mt-1">Solusi Terintegrasi INTAN</h3>
+                    <p class="text-slate-300 text-sm mt-2 leading-relaxed">
+                        Otomasi meningkatkan produktivitas &amp; efisiensi pangan (FAO, 2022). <strong>INTAN</strong>
+                        menggabungkan <strong>pembalikan otomatis 6 servo</strong>, <strong>sensor suhu</strong>, dan
+                        <strong>2 blower</strong> tanpa mengganti <strong>bara arang</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tujuan Box -->
+            <div
+                class="p-6 rounded-2xl bg-gradient-to-r from-thermal-600/25 via-charcoal-800 to-amber-500/15 border border-thermal-500/40 flex flex-col md:flex-row items-center gap-5">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-thermal-500 text-white flex items-center justify-center text-3xl shrink-0 shadow-lg">
+                    🎯</div>
+                <div>
+                    <div class="text-xs font-bold uppercase tracking-wider text-amber-300">Tujuan Pengembangan PKM-KI
+                        INTAN</div>
+                    <p class="text-white text-sm sm:text-base font-medium mt-1 leading-relaxed">
+                        Mengembangkan <strong>INTAN</strong>, pemanggang kemplang tunu otomatis berbasis mikrokontroler
+                        untuk <strong>meningkatkan kapasitas produksi secara signifikan</strong>, <strong>menstandarkan
+                            pemerataan kematangan guna menekan risiko produk cacat</strong>, serta <strong>meminimalkan
+                            beban kerja manual</strong> dengan tetap mempertahankan cita rasa khas <strong>bara
+                            arang</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="spesifikasi" class="py-16 bg-charcoal-900 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Bagian 2 • Rekayasa Perangkat
+                    Keras &amp; Arsitektur Sistem</span>
+                <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-white mt-2">
+                    Spesifikasi Teknis, Material Standar Pangan, &amp; Skema Wiring
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base mt-2">
+                    Dirancang dengan isolasi kelistrikan 3-zona dan material mengacu standar <strong>SNI
+                        8753:2020</strong> (Standar Peralatan Makan dan Perlengkapan Masak dari Baja Tahan Karat).
+                </p>
+            </div>
+
+            <!-- 6 Specs Grid (From PPT Slide 18) -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
+                <div class="p-4 rounded-2xl bg-charcoal-950/90 border border-white/10 text-center">
+                    <div class="text-xl mb-1">⚡</div>
+                    <div class="text-[11px] text-slate-400">Kapasitas</div>
+                    <div class="font-bold text-amber-400 text-sm mt-0.5">400–420 / Jam</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-charcoal-950/90 border border-white/10 text-center">
+                    <div class="text-xl mb-1">🔌</div>
+                    <div class="text-[11px] text-slate-400">Tegangan Sistem</div>
+                    <div class="font-bold text-white text-sm mt-0.5">220V AC / 5V DC</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-charcoal-950/90 border border-white/10 text-center">
+                    <div class="text-xl mb-1">🌡️</div>
+                    <div class="text-[11px] text-slate-400">Suhu Histeresis</div>
+                    <div class="font-bold text-orange-400 text-sm mt-0.5">550°C – 600°C</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-charcoal-950/90 border border-white/10 text-center">
+                    <div class="text-xl mb-1">⚖️</div>
+                    <div class="text-[11px] text-slate-400">Berat Perangkat</div>
+                    <div class="font-bold text-white text-sm mt-0.5">25 Kg (Portabel)</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-charcoal-950/90 border border-white/10 text-center">
+                    <div class="text-xl mb-1">💡</div>
+                    <div class="text-[11px] text-slate-400">Daya Listrik Alat</div>
+                    <div class="font-bold text-emerald-400 text-sm mt-0.5">± 150–200 Watt</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-charcoal-950/90 border border-white/10 text-center">
+                    <div class="text-xl mb-1">⏳</div>
+                    <div class="text-[11px] text-slate-400">Waktu Operasi</div>
+                    <div class="font-bold text-cyan-400 text-sm mt-0.5">4–5 Jam Kontinu</div>
+                </div>
+            </div>
+
+            <!-- Material Penyusun (PPT Slide 16) & Dimensi Presisi (PPT Slide 17) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+                <!-- 3 Materials -->
+                <div class="lg:col-span-6 ember-card p-6 rounded-2xl border border-white/10 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-display font-bold text-lg text-white">🛡️ Material Penyusun &amp; Acuan Standar
+                        </h3>
+                        <span
+                            class="text-xs px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">SNI
+                            8753:2020</span>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="p-3.5 rounded-xl bg-charcoal-950/70 border border-white/10">
+                            <div class="flex justify-between font-bold text-amber-300">
+                                <span>1. Plat Stainless Steel SUS 304</span>
+                                <span class="font-mono text-xs text-slate-400">ASTM A240</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Digunakan pada bagian utama dan area pemanggangan
+                                INTAN. Tahan korosi, higienis (*food-grade*), dan mudah dibersihkan.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-charcoal-950/70 border border-white/10">
+                            <div class="flex justify-between font-bold text-amber-300">
+                                <span>2. Pipa &amp; Kawat Penjepit SUS 304</span>
+                                <span class="font-mono text-xs text-slate-400">ASTM A312</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Memiliki kekuatan mekanis tinggi, tahan panas ekstrem
+                                radiasi bara arang, serta *detachable* (dapat dilepas-cuci).</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-charcoal-950/70 border border-white/10">
+                            <div class="flex justify-between font-bold text-amber-300">
+                                <span>3. Plat Aluminium &amp; Rangka Pendukung</span>
+                                <span class="font-mono text-xs text-slate-400">ASTM B209</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Material pelapis/casing pendukung bagian luar dan
+                                struktur rangka 1,2 mm yang ringan, kokoh, serta menghantarkan panas secara efisien.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blueprint Dimensi & Wiring Diagram (PPT Slides 14 & 17) -->
+                <div
+                    class="lg:col-span-6 ember-card p-6 rounded-2xl border border-white/10 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display font-bold text-lg text-white">📐 Dimensi Fisik &amp; Wiring Diagram
+                            </h3>
+                            <div class="flex gap-1.5">
+                                <button onclick="switchTechTab('dimensi')" id="tabBtnDimensi"
+                                    class="px-3 py-1 rounded-lg text-xs font-bold bg-thermal-500 text-white">Dimensi
+                                    (124cm)</button>
+                                <button onclick="switchTechTab('wiring')" id="tabBtnWiring"
+                                    class="px-3 py-1 rounded-lg text-xs font-bold bg-white/10 text-slate-300 hover:bg-white/20">Wiring
+                                    Diagram</button>
+                            </div>
+                        </div>
+
+                        <!-- Tab 1: Blueprint Dimensi SVG -->
+                        <div id="techTabDimensi" class="bg-slate-950 rounded-xl p-4 border border-cyan-500/30">
+                            <svg viewBox="0 0 520 220" class="w-full h-auto">
+                                <!-- Blueprint Grid Background -->
+                                <defs>
+                                    <pattern id="bpGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(56, 189, 248, 0.1)"
+                                            stroke-width="1" />
+                                    </pattern>
+                                </defs>
+                                <rect width="520" height="220" fill="url(#bpGrid)" rx="8" />
+
+                                <!-- Total Width Dimension Line (124 cm) -->
+                                <line x1="40" y1="25" x2="480" y2="25" stroke="#38BDF8" stroke-width="1.5" />
+                                <line x1="40" y1="18" x2="40" y2="55" stroke="#38BDF8" stroke-width="1"
+                                    stroke-dasharray="3,3" />
+                                <line x1="480" y1="18" x2="480" y2="55" stroke="#38BDF8" stroke-width="1"
+                                    stroke-dasharray="3,3" />
+                                <rect x="215" y="13" width="90" height="20" fill="#090D16" rx="4" />
+                                <text x="260" y="27" fill="#38BDF8" font-size="11" font-family="monospace"
+                                    font-weight="bold" text-anchor="middle">TOTAL: 124 cm</text>
+
+                                <!-- Sub-dimensions: 12cm | 100cm | 12cm -->
+                                <line x1="90" y1="48" x2="430" y2="48" stroke="#FACC15" stroke-width="1.5" />
+                                <text x="65" y="45" fill="#94A3B8" font-size="10" font-family="monospace"
+                                    text-anchor="middle">12cm</text>
+                                <text x="260" y="45" fill="#FACC15" font-size="11" font-family="monospace"
+                                    font-weight="bold" text-anchor="middle">TUNGKU UTAMA: 100 cm</text>
+                                <text x="455" y="45" fill="#94A3B8" font-size="10" font-family="monospace"
+                                    text-anchor="middle">12cm</text>
+
+                                <!-- Left Blower (12cm) -->
+                                <circle cx="65" cy="110" r="24" fill="#1E293B" stroke="#94A3B8" stroke-width="2" />
+                                <circle cx="65" cy="110" r="10" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5" />
+                                <rect x="65" y="124" width="25" height="12" fill="#334155" stroke="#94A3B8" />
+
+                                <!-- Right Blower (12cm) -->
+                                <circle cx="455" cy="110" r="24" fill="#1E293B" stroke="#94A3B8" stroke-width="2" />
+                                <circle cx="455" cy="110" r="10" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5" />
+                                <rect x="430" y="124" width="25" height="12" fill="#334155" stroke="#94A3B8" />
+
+                                <!-- Main Roaster Body (100cm x 30cm) -->
+                                <rect x="90" y="65" width="340" height="95" fill="#1E293B" stroke="#E2E8F0"
+                                    stroke-width="2" />
+                                <!-- Upper Roasting Zone (10cm) -->
+                                <line x1="90" y1="98" x2="430" y2="98" stroke="#EA580C" stroke-width="1.5"
+                                    stroke-dasharray="4,4" />
+                                <!-- 6 Clamping Racks -->
+                                <g fill="#FACC15" opacity="0.85">
+                                    <ellipse cx="125" cy="82" rx="16" ry="8" />
+                                    <ellipse cx="178" cy="82" rx="16" ry="8" />
+                                    <ellipse cx="230" cy="82" rx="16" ry="8" />
+                                    <ellipse cx="290" cy="82" rx="16" ry="8" />
+                                    <ellipse cx="342" cy="82" rx="16" ry="8" />
+                                    <ellipse cx="395" cy="82" rx="16" ry="8" />
+                                </g>
+                                <!-- Two Drawers (Left & Right, 20cm height) -->
+                                <rect x="96" y="104" width="160" height="50" fill="#0F172A" stroke="#64748B"
+                                    stroke-width="1.5" />
+                                <circle cx="176" cy="129" r="6" fill="#EA580C" />
+                                <rect x="264" y="104" width="160" height="50" fill="#0F172A" stroke="#64748B"
+                                    stroke-width="1.5" />
+                                <circle cx="344" cy="129" r="6" fill="#EA580C" />
+
+                                <!-- Wheels (10cm) -->
+                                <circle cx="110" cy="172" r="8" fill="#EF4444" stroke="#F8FAFC" stroke-width="1.5" />
+                                <circle cx="410" cy="172" r="8" fill="#EF4444" stroke="#F8FAFC" stroke-width="1.5" />
+
+                                <!-- Height Labels -->
+                                <text x="498" y="88" fill="#FACC15" font-size="9" font-family="monospace">10cm</text>
+                                <text x="498" y="132" fill="#38BDF8" font-size="9" font-family="monospace">20cm</text>
+                                <text x="498" y="175" fill="#EF4444" font-size="9" font-family="monospace">10cm</text>
+                                <text x="260" y="204" fill="#94A3B8" font-size="10" font-family="sans-serif"
+                                    text-anchor="middle">Sumber: Dokumentasi Pribadi &amp; Blueprint CAD INTAN,
+                                    2026</text>
+                            </svg>
+                        </div>
+
+                        <!-- Tab 2: Interactive Wiring Diagram (PPT Slide 14) -->
+                        <div id="techTabWiring" class="hidden bg-slate-950 rounded-xl p-4 border border-amber-500/30">
+                            <svg viewBox="0 0 520 220" class="w-full h-auto">
+                                <rect width="520" height="220" fill="#090D16" rx="8" />
+                                <!-- Arduino Nano Central Brain -->
+                                <rect x="195" y="85" width="110" height="50" rx="6" fill="#0284C7" stroke="#38BDF8"
+                                    stroke-width="2" />
+                                <text x="250" y="107" fill="#FFFFFF" font-size="11" font-weight="bold"
+                                    font-family="monospace" text-anchor="middle">ARDUINO NANO</text>
+                                <text x="250" y="122" fill="#BAE6FD" font-size="9" font-family="monospace"
+                                    text-anchor="middle">ATmega328P (millis)</text>
+
+                                <!-- 6x Servos Top Row -->
+                                <g transform="translate(30, 15)">
+                                    <rect x="0" y="0" width="48" height="28" rx="4" fill="#1E293B" stroke="#FACC15"
+                                        stroke-width="1.5" />
+                                    <text x="24" y="18" fill="#FACC15" font-size="8" font-family="monospace"
+                                        text-anchor="middle">SERVO 1</text>
+                                    <rect x="55" y="0" width="48" height="28" rx="4" fill="#1E293B" stroke="#FACC15"
+                                        stroke-width="1.5" />
+                                    <text x="79" y="18" fill="#FACC15" font-size="8" font-family="monospace"
+                                        text-anchor="middle">SERVO 2</text>
+                                    <rect x="110" y="0" width="48" height="28" rx="4" fill="#1E293B" stroke="#FACC15"
+                                        stroke-width="1.5" />
+                                    <text x="134" y="18" fill="#FACC15" font-size="8" font-family="monospace"
+                                        text-anchor="middle">SERVO 3</text>
+                                    <rect x="165" y="0" width="48" height="28" rx="4" fill="#1E293B" stroke="#FACC15"
+                                        stroke-width="1.5" />
+                                    <text x="189" y="18" fill="#FACC15" font-size="8" font-family="monospace"
+                                        text-anchor="middle">SERVO 4</text>
+                                    <rect x="220" y="0" width="48" height="28" rx="4" fill="#1E293B" stroke="#FACC15"
+                                        stroke-width="1.5" />
+                                    <text x="244" y="18" fill="#FACC15" font-size="8" font-family="monospace"
+                                        text-anchor="middle">SERVO 5</text>
+                                    <rect x="275" y="0" width="48" height="28" rx="4" fill="#1E293B" stroke="#FACC15"
+                                        stroke-width="1.5" />
+                                    <text x="299" y="18" fill="#FACC15" font-size="8" font-family="monospace"
+                                        text-anchor="middle">SERVO 6</text>
+                                </g>
+                                <!-- PWM Lines from Arduino to Servos -->
+                                <path
+                                    d="M 250 85 L 250 60 L 55 60 L 55 43 M 110 60 L 110 43 M 165 60 L 165 43 M 220 60 L 220 43 M 275 60 L 275 43 M 330 60 L 330 43"
+                                    stroke="#FACC15" stroke-width="1.5" fill="none" />
+
+                                <!-- MAX6675 + Thermocouple (Right Top) -->
+                                <rect x="380" y="25" width="115" height="42" rx="6" fill="#064E3B" stroke="#10B981"
+                                    stroke-width="1.5" />
+                                <text x="437" y="43" fill="#A7F3D0" font-size="10" font-weight="bold"
+                                    font-family="monospace" text-anchor="middle">MAX6675 + TIPE-K</text>
+                                <text x="437" y="57" fill="#6EE7B7" font-size="8" font-family="monospace"
+                                    text-anchor="middle">SPI Bus (Suhu Bara)</text>
+                                <path d="M 305 100 L 350 100 L 350 46 L 380 46" stroke="#10B981" stroke-width="1.5"
+                                    fill="none" />
+
+                                <!-- LCD 20x4 I2C (Bottom Left) -->
+                                <rect x="30" y="150" width="125" height="45" rx="6" fill="#1E3A8A" stroke="#60A5FA"
+                                    stroke-width="1.5" />
+                                <text x="92" y="170" fill="#EFF6FF" font-size="10" font-weight="bold"
+                                    font-family="monospace" text-anchor="middle">LCD I2C DISPLAY</text>
+                                <text x="92" y="184" fill="#93C5FD" font-size="8" font-family="monospace"
+                                    text-anchor="middle">SDA/SCL (Monitoring)</text>
+                                <path d="M 195 115 L 92 115 L 92 150" stroke="#60A5FA" stroke-width="1.5" fill="none" />
+
+                                <!-- 2-Channel Relay Optocoupler (Bottom Center) -->
+                                <rect x="195" y="155" width="120" height="42" rx="6" fill="#7C2D12" stroke="#FB923C"
+                                    stroke-width="1.5" />
+                                <text x="255" y="173" fill="#FFEDD5" font-size="10" font-weight="bold"
+                                    font-family="monospace" text-anchor="middle">RELAY 2-CH OPTO</text>
+                                <text x="255" y="187" fill="#FDBA74" font-size="8" font-family="monospace"
+                                    text-anchor="middle">2x Blower + Dimmer</text>
+                                <line x1="250" y1="135" x2="250" y2="155" stroke="#FB923C" stroke-width="1.5" />
+
+                                <!-- Power Supply Adapter (Bottom Right) -->
+                                <rect x="375" y="145" width="120" height="52" rx="6" fill="#334155" stroke="#F43F5E"
+                                    stroke-width="1.5" />
+                                <text x="435" y="167" fill="#FFE4E6" font-size="10" font-weight="bold"
+                                    font-family="monospace" text-anchor="middle">PSU SWITCHING 5V</text>
+                                <text x="435" y="182" fill="#FDA4AF" font-size="8" font-family="monospace"
+                                    text-anchor="middle">Isolasi 3-Zona Kelistrikan</text>
+                                <path d="M 375 170 L 315 170 M 375 120 L 305 120" stroke="#F43F5E" stroke-width="1.5"
+                                    fill="none" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-400">
+                        💡 <strong>Keunggulan Arsitektur Modular:</strong> Seluruh konektor menggunakan soket
+                        <em>plug-and-play</em> sehingga penggantian sensor atau servo di lapangan tidak membutuhkan
+                        penyolderan ulang.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="kinerja" class="py-16 bg-slate-50 text-slate-900 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-thermal-600">Bagian 3 • Bukti Empiris
+                    &amp; Simulasi Ekonomi UMKM</span>
+                <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-slate-900 mt-2">
+                    Data Pengujian 6 Sampel, Komparasi, &amp; Kalkulator Produktivitas
+                </h2>
+                <p class="text-slate-600 text-sm sm:text-base mt-2">
+                    Berdasarkan evaluasi laporan akhir dan pengujian langsung menggunakan adonan kemplang tunu (Sumber
+                    data kinerja: Tim PKM-KI INTAN, 2026).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+
+                <!-- Left: Data Pengujian 6 Sampel (Exact Data from PPT Slide 22) -->
+                <div
+                    class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-lg border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-thermal-600">Tabel
+                                    Pengujian Empiris (PPT Hal. 22)</span>
+                                <h3 class="font-display font-bold text-lg text-slate-900">Hasil Uji Pemanggangan 6
+                                    Sampel</h3>
+                            </div>
+                            <span
+                                class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">Rata-rata:
+                                46,5 dtk</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                                <thead>
+                                    <tr class="bg-slate-900 text-white">
+                                        <th class="py-2.5 px-3 rounded-tl-xl">Sampel</th>
+                                        <th class="py-2.5 px-3">Status Mutu</th>
+                                        <th class="py-2.5 px-3">Waktu (Detik)</th>
+                                        <th class="py-2.5 px-3 rounded-tr-xl">Suhu (°C)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 font-medium">
+                                    <tr class="hover:bg-orange-50/60">
+                                        <td class="py-2.5 px-3 font-bold">Sampel #1</td>
+                                        <td class="py-2.5 px-3 text-emerald-600 font-bold">✅ MATANG</td>
+                                        <td class="py-2.5 px-3 font-mono">47 detik</td>
+                                        <td class="py-2.5 px-3 font-mono">492,1 °C</td>
+                                    </tr>
+                                    <tr class="hover:bg-orange-50/60">
+                                        <td class="py-2.5 px-3 font-bold">Sampel #2</td>
+                                        <td class="py-2.5 px-3 text-emerald-600 font-bold">✅ MATANG</td>
+                                        <td class="py-2.5 px-3 font-mono">45 detik</td>
+                                        <td class="py-2.5 px-3 font-mono">512,20 °C</td>
+                                    </tr>
+                                    <tr class="hover:bg-orange-50/60">
+                                        <td class="py-2.5 px-3 font-bold">Sampel #3</td>
+                                        <td class="py-2.5 px-3 text-emerald-600 font-bold">✅ MATANG</td>
+                                        <td class="py-2.5 px-3 font-mono">47 detik</td>
+                                        <td class="py-2.5 px-3 font-mono">540,1 °C</td>
+                                    </tr>
+                                    <tr class="bg-amber-50/80 hover:bg-amber-100/70">
+                                        <td class="py-2.5 px-3 font-bold">Sampel #4</td>
+                                        <td class="py-2.5 px-3 text-emerald-600 font-bold">✅ MATANG</td>
+                                        <td class="py-2.5 px-3 font-mono">46 detik</td>
+                                        <td class="py-2.5 px-3 font-mono font-bold text-thermal-600">612,4 °C (Cut-Off)
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-orange-50/60">
+                                        <td class="py-2.5 px-3 font-bold">Sampel #5</td>
+                                        <td class="py-2.5 px-3 text-emerald-600 font-bold">✅ MATANG</td>
+                                        <td class="py-2.5 px-3 font-mono">46 detik</td>
+                                        <td class="py-2.5 px-3 font-mono">558,21 °C</td>
+                                    </tr>
+                                    <tr class="hover:bg-orange-50/60">
+                                        <td class="py-2.5 px-3 font-bold">Sampel #6</td>
+                                        <td class="py-2.5 px-3 text-emerald-600 font-bold">✅ MATANG</td>
+                                        <td class="py-2.5 px-3 font-mono">48 detik</td>
+                                        <td class="py-2.5 px-3 font-mono">571,3 °C</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-xs text-slate-600">
+                        📌 <strong>Catatan Evaluasi Utama:</strong> Rentang waktu matang konsisten di <strong>45–48
+                            detik</strong> (rata-rata <strong>46,5 detik</strong>) dengan suhu ruang bakar pada evaluasi
+                        utama <strong>560–640 °C</strong> dan suhu kotak kontrol tetap aman <strong>&lt; 48 °C</strong>
+                        selama uji kontinu 5 jam.
+                    </div>
+                </div>
+
+                <!-- Right: Competitive Landscape Table -->
+                <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-thermal-600">Competitive
+                                Landscape</span>
+                            <h3 class="font-display font-bold text-lg text-slate-900">Perbandingan Pemanggangan
+                                Konvensional vs INTAN</h3>
+                        </div>
+                        <span class="text-xs text-slate-500">Sumber: Tim PKM-KI INTAN, 2026</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="border-b-2 border-slate-200 text-slate-600 uppercase text-xs">
+                                    <th class="py-3 px-3">Parameter Pembanding</th>
+                                    <th class="py-3 px-3 bg-slate-100 rounded-tl-xl">Metode Konvensional</th>
+                                    <th class="py-3 px-3 bg-orange-50 text-thermal-600 rounded-tr-xl">Inovasi INTAN</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Sumber Panas</td>
+                                    <td class="py-3 px-3 bg-slate-50/70">Bara arang</td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-semibold text-slate-900">✅ Bara arang
+                                        (Cita rasa khas terjaga)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Pembalikan Kemplang</td>
+                                    <td class="py-3 px-3 bg-slate-50/70 text-red-600">Manual satu per satu</td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-semibold text-slate-900">✅ Otomatis, 6
+                                        Motor Servo (180°)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Pemantauan Suhu</td>
+                                    <td class="py-3 px-3 bg-slate-50/70 text-red-600">Perkiraan / pengamatan operator
+                                    </td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-semibold text-slate-900">✅ Termokopel
+                                        Tipe-K, MAX6675 &amp; LCD</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Pengaturan Udara</td>
+                                    <td class="py-3 px-3 bg-slate-50/70 text-red-600">Kipas manual / tidak terkendali
+                                    </td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-semibold text-slate-900">✅ Dua Blower
+                                        Keong + Histeresis Otomatis</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Kapasitas Produksi</td>
+                                    <td class="py-3 px-3 bg-slate-50/70 font-mono">80–100 keping/jam</td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-bold text-thermal-600 font-mono">✅ 400–420
+                                        keping/jam</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Risiko Produk Cacat</td>
+                                    <td class="py-3 px-3 bg-slate-50/70 text-red-600 font-mono">2–10% (Rentan gosong)
+                                    </td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-bold text-emerald-600 font-mono">✅ &lt; 5%
+                                        (Matang merata)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 font-bold">Keterlibatan Operator</td>
+                                    <td class="py-3 px-3 bg-slate-50/70 text-red-600">Intensif (Paparan panas tinggi)
+                                    </td>
+                                    <td class="py-3 px-3 bg-orange-50/40 font-semibold text-emerald-700">✅ Lebih ringan
+                                        &amp; ergonomis</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive UMKM Productivity Calculator -->
+            <div
+                class="bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-800 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-orange-500/30">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-5 space-y-4">
+                        <span
+                            class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
+                            🧮 SIMULATOR DAMPAK EKONOMI UMKM
+                        </span>
+                        <h3 class="font-display font-extrabold text-2xl sm:text-3xl">
+                            Kalkulator Produktivitas Harian UMKM Kemplang Tunu
+                        </h3>
+                        <p class="text-slate-300 text-sm">
+                            Geser durasi jam operasional harian untuk membandingkan output produksi manual vs perangkat
+                            otomatis <strong>INTAN</strong>.
+                        </p>
+
+                        <div class="space-y-2 pt-2">
+                            <div class="flex justify-between text-sm font-semibold">
+                                <span class="text-slate-300">Durasi Jam Kerja Harian:</span>
+                                <span id="calcHoursLabel" class="text-amber-400 font-mono text-lg">5 Jam / Hari</span>
+                            </div>
+                            <input id="calcHoursSlider" type="range" min="1" max="8" value="5"
+                                oninput="updateCalculator()"
+                                class="w-full h-2.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+                                <span>1 Jam</span>
+                                <span>4 Jam (1 Shift)</span>
+                                <span>5 Jam (Uji Kontinu)</span>
+                                <span>8 Jam (2 Shift)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-5 rounded-2xl bg-white/5 border border-white/10">
+                            <div class="text-xs text-slate-400 uppercase font-semibold">Metode Manual</div>
+                            <div id="calcManualOut" class="font-display font-extrabold text-2xl text-slate-200 mt-2">
+                                400–500</div>
+                            <div class="text-xs text-slate-400 mt-1">Keping / Hari (80–100/jam)</div>
+                            <div class="mt-3 pt-3 border-t border-white/10 text-xs text-red-400">
+                                Potensi Gosong (10%): <strong id="calcManualDefect">~45 keping</strong>
+                            </div>
+                        </div>
+
+                        <div
+                            class="p-5 rounded-2xl bg-gradient-to-b from-thermal-500/30 to-amber-500/10 border-2 border-amber-400 shadow-xl">
+                            <div class="text-xs text-amber-300 uppercase font-bold">Dengan INTAN ✨</div>
+                            <div id="calcIntanOut"
+                                class="font-display font-extrabold text-2xl sm:text-3xl text-amber-400 mt-2">2.000–2.100
+                            </div>
+                            <div class="text-xs text-amber-100 mt-1">Keping / Hari (400–420/jam)</div>
+                            <div class="mt-3 pt-3 border-t border-amber-400/30 text-xs text-emerald-300 font-semibold">
+                                Cacat Ditekan &lt;5% (Hemat Bahan)
+                            </div>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-white/5 border border-emerald-500/30">
+                            <div class="text-xs text-emerald-300 uppercase font-semibold">Estimasi Output Bulanan</div>
+                            <div id="calcMonthlyOut" class="font-display font-extrabold text-2xl text-emerald-400 mt-2">
+                                52.500</div>
+                            <div class="text-xs text-slate-300 mt-1">Keping / Bulan (25 Hari Kerja)</div>
+                            <div class="mt-3 pt-3 border-t border-white/10 text-xs text-amber-300">
+                                Peningkatan Output: <strong>+320% s.d. +400%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sop" class="py-16 bg-charcoal-950 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                <div>
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold mb-2">
+                        📱 HALAMAN TUJUAN QR CODE BAB IX (9.2) — BUKU SAKU DIGITAL OPERATOR
+                    </div>
+                    <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-white">
+                        Standar Operasional Prosedur (12 Tahapan) &amp; Panduan K3
+                    </h2>
+                </div>
+                <!-- Phase Filter Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterSopPhase('all')"
+                        class="sop-phase-btn bg-thermal-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">Semua
+                        (12 Langkah)</button>
+                    <button onclick="filterSopPhase('1')"
+                        class="sop-phase-btn bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold transition">Fase
+                        1: Instalasi</button>
+                    <button onclick="filterSopPhase('2')"
+                        class="sop-phase-btn bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold transition">Fase
+                        2: Bara Api</button>
+                    <button onclick="filterSopPhase('3')"
+                        class="sop-phase-btn bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold transition">Fase
+                        3: Otomasi</button>
+                    <button onclick="filterSopPhase('4')"
+                        class="sop-phase-btn bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold transition">Fase
+                        4: Pasca-Produksi</button>
+                </div>
+            </div>
+
+            <!-- 12 Steps Grid Populated by JS -->
+            <div id="sopStepsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"></div>
+
+            <!-- K3, Lingkungan Semi-Outdoor, Emergency Shutdown, & Do's/Don'ts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- K3 & Lingkungan -->
+                <div class="ember-card p-6 rounded-2xl border border-amber-500/30 space-y-3">
+                    <div class="text-xs font-bold uppercase tracking-wider text-amber-400">⚠️ Protokol K3 &amp;
+                        Lingkungan (Bab 4.1)</div>
+                    <h3 class="font-display font-bold text-lg text-white">Standar Semi-Outdoor &amp; Keselamatan</h3>
+                    <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300">
+                        <li class="flex gap-2"><span>🔥</span> <span><strong>Bahaya Suhu Tinggi (400–600°C):</strong>
+                                Wajib gunakan sarung tangan anti-panas dan <em>kitchen tongs</em> saat
+                                bongkar-muat.</span></li>
+                        <li class="flex gap-2"><span>⚡</span> <span><strong>Keamanan Kelistrikan:</strong> Gunakan
+                                stopkontak AC 220V ber-arde (<em>grounding</em>) dan jauhkan kotak ECU dari percikan
+                                air.</span></li>
+                        <li class="flex gap-2"><span>🏡</span> <span><strong>Wajib Area Semi-Outdoor:</strong>
+                                Pembakaran arang menghasilkan gas CO. Operasikan di teras beratap/berventilasi terbuka
+                                (aman dari hujan &amp; bebas akumulasi asap).</span></li>
+                    </ul>
+                </div>
+
+                <!-- 5 Langkah Emergency Shutdown -->
+                <div class="ember-card p-6 rounded-2xl border border-red-500/40 space-y-3">
+                    <div class="text-xs font-bold uppercase tracking-wider text-red-400">🚨 Prosedur Darurat (Bab 4.4)
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-white">5 Langkah Emergency Shutdown</h3>
+                    <ol class="space-y-2 text-xs sm:text-sm text-slate-300 list-decimal list-inside">
+                        <li><strong>Pemutusan Daya Segera:</strong> Tekan sakelar utama (<em>Power Switch</em>) ke
+                            posisi <strong>OFF</strong>.</li>
+                        <li><strong>Isolasi Kelistrikan:</strong> Cabut steker utama dari stopkontak PLN.</li>
+                        <li><strong>Penyelamatan Produk:</strong> Gunakan capitan panjang untuk mengeluarkan kemplang
+                            dari rak.</li>
+                        <li><strong>Pemisahan Sumber Panas:</strong> Tarik keluar laci arang memakai sarung tangan tahan
+                            panas.</li>
+                        <li><strong>Pendinginan Alami:</strong> <strong>DILARANG KERAS</strong> menyiram air langsung ke
+                            bodi panas atau ECU.</li>
+                    </ol>
+                </div>
+
+                <!-- Do's and Don'ts -->
+                <div class="ember-card p-6 rounded-2xl border border-emerald-500/30 space-y-3">
+                    <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">✅❌ Praktik Terbaik (Bab
+                        4.5)</div>
+                    <h3 class="font-display font-bold text-lg text-white">Do's &amp; Don'ts Operator UMKM</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200">
+                            <strong>✅ WAJIB (DO'S):</strong> Letakkan alat di permukaan datar; sisakan jarak bara ke
+                            penjepit (<em>clearance</em>) <strong>5–7 cm</strong>; buang abu setiap selesai produksi.
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200">
+                            <strong>❌ DILARANG (DON'TS):</strong> Jangan menahan putaran servo dengan tangan (merusak
+                            <em>metal gear</em>); jangan menumpuk arang menyentuh kisi; jangan mengelap ECU dengan kain
+                            basah.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="maintenance" class="py-16 bg-charcoal-900 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Bagian 5 • Keandalan
+                    Operasional &amp; Layanan Purnajual</span>
+                <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-white mt-2">
+                    Jadwal Perawatan, Matriks Troubleshooting, &amp; Skema Garansi 4 Lapis
+                </h2>
+                <p class="text-slate-300 text-sm mt-2">
+                    Dirancang dengan protokol operasional 4–5 jam kontinu diselingi jeda pendinginan agar suhu kotak ECU
+                    terjaga di bawah 48°C.
+                </p>
+            </div>
+
+            <!-- 3-Tier Maintenance & Troubleshooting -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <!-- Jadwal Perawatan 3 Tingkat -->
+                <div class="lg:col-span-5 ember-card p-6 rounded-2xl border border-white/10 space-y-4">
+                    <h3 class="font-display font-bold text-lg text-amber-300">🧹 Jadwal Perawatan Berkala (Cleaning
+                        &amp; Checking)</h3>
+                    <div class="space-y-3 text-xs sm:text-sm">
+                        <div class="p-3.5 rounded-xl bg-charcoal-950/80 border border-white/10">
+                            <span class="font-bold text-emerald-400 block">1. Harian (Setiap Selesai Produksi)</span>
+                            <p class="text-slate-300 mt-1">Lepas dan cuci kisi penjepit SUS 304 dengan air sabun &amp;
+                                spons halus (hindari sikat kawat). Kosongkan laci abu arang setelah dingin.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-charcoal-950/80 border border-white/10">
+                            <span class="font-bold text-amber-400 block">2. Mingguan (± 50 Jam Operasi)</span>
+                            <p class="text-slate-300 mt-1">Periksa kekencangan mur pengunci tangkai servo MG996R dan
+                                bersihkan ventilasi kotak kontrol (ECU) dengan kuas kering.</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-charcoal-950/80 border border-white/10">
+                            <span class="font-bold text-cyan-400 block">3. Bulanan (± 200 Jam Operasi)</span>
+                            <p class="text-slate-300 mt-1">Periksa soket terminal VCC/GND serta lakukan uji kalibrasi
+                                sensor Termokopel Tipe-K (titik didih air 100°C toleransi ±2%).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Klasifikasi Kerusakan (Minor, Moderate, Major) -->
+                <div class="lg:col-span-7 ember-card p-6 rounded-2xl border border-white/10 space-y-4">
+                    <h3 class="font-display font-bold text-lg text-amber-300">🔧 Matriks Klasifikasi Kerusakan &amp;
+                        Solusi Modular</h3>
+                    <div class="space-y-3 text-xs sm:text-sm">
+                        <div class="p-4 rounded-xl bg-charcoal-950/80 border-l-4 border-emerald-400">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>🟢 Tingkat 1: Kerusakan Kecil (Minor Error)</span>
+                                <span class="text-emerald-400">Mandiri (Hitungan Menit)</span>
+                            </div>
+                            <p class="text-slate-300 mt-1"><strong>Gejala:</strong> Teks LCD berkedip/acak (<em>I2C
+                                    glitch</em>) atau engsel berderit. <br><strong>Solusi:</strong> Lakukan
+                                <em>restart</em> daya utama (<em>power cycling</em>) dan beri sedikit pelumas
+                                <em>food-grade</em> pada poros engsel.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-charcoal-950/80 border-l-4 border-amber-400">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>🟡 Tingkat 2: Kerusakan Sedang (Moderate Error)</span>
+                                <span class="text-amber-400">Modular Plug &amp; Play</span>
+                            </div>
+                            <p class="text-slate-300 mt-1"><strong>Gejala:</strong> Salah satu servo bergetar
+                                (<em>jitter</em>), pembacaan suhu 0°C/ERR SPI, atau blower tidak merespon.
+                                <br><strong>Solusi:</strong> Cabut soket komponen (Servo/MAX6675) dan pasang suku cadang
+                                cadangan secara <em>plug-and-play</em> tanpa solder.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-charcoal-950/80 border-l-4 border-rose-500">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>🔴 Tingkat 3: Kerusakan Besar (Major / Critical Error)</span>
+                                <span class="text-rose-400">Proteksi Sekring &amp; Blok ECU</span>
+                            </div>
+                            <p class="text-slate-300 mt-1"><strong>Gejala:</strong> Mati total akibat lonjakan listrik
+                                ekstrem atau sekring putus. <br><strong>Solusi:</strong> Sekring utama otomatis memutus
+                                arus untuk melindungi mikrokontroler; penggantian satu blok panel ECU modular.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4-Layer Warranty Cards (Alokasi 10% Profit Kotor) -->
+            <div class="p-6 sm:p-8 rounded-3xl bg-charcoal-950 border border-amber-500/30">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-thermal-400">Perlindungan Investasi
+                            Mitra UMKM</span>
+                        <h3 class="font-display font-extrabold text-xl sm:text-2xl text-white">Skema Garansi Bertingkat
+                            4 Lapis (Cadangan Risiko 10% Profit)</h3>
+                    </div>
+                    <span
+                        class="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                        S&amp;K: Berlaku untuk Manufacturing Defect (Tidak Mencakup Human Error)
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-rose-500/30">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">Lapis 1 •
+                            Alokasi 2%</span>
+                        <h4 class="font-bold text-white text-base mt-2">Tukar Baru (7 Hari)</h4>
+                        <p class="text-xs text-slate-300 mt-1">Maksimal <strong>1x klaim</strong> penggantian unit baru
+                            apabila terdapat cacat produksi awal atau kerusakan pengiriman.</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-amber-500/30">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">Lapis 2 •
+                            Alokasi 5%</span>
+                        <h4 class="font-bold text-white text-base mt-2">Sparepart Elektronik (1 Thn)</h4>
+                        <p class="text-xs text-slate-300 mt-1">Maksimal <strong>2x klaim</strong> penggantian komponen
+                            rentan (Motor Servo MG996R &amp; Sensor Termokopel MAX6675).</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-emerald-500/30">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Lapis 3 •
+                            Alokasi 1%</span>
+                        <h4 class="font-bold text-white text-base mt-2">Bodi &amp; Rangka (2 Tahun)</h4>
+                        <p class="text-xs text-slate-300 mt-1">Maksimal <strong>1x klaim</strong> struktur pengelasan
+                            rangka utama dan pelat <em>Stainless Steel SUS 304</em>.</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-cyan-500/30">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">Lapis 4 •
+                            Alokasi 2%</span>
+                        <h4 class="font-bold text-white text-base mt-2">Gratis Jasa Servis (1 Thn)</h4>
+                        <p class="text-xs text-slate-300 mt-1">Maksimal <strong>3x klaim</strong> kunjungan teknisi atau
+                            pendampingan instalasi suku cadang modular jarak jauh.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="luaran" class="py-16 bg-charcoal-950 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-thermal-400">Bagian 6 • Capaian Luaran,
+                    Legalitas, &amp; Hilirisasi</span>
+                <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-white mt-2">
+                    Legitimasi HKI, Publikasi 12 Media Massa, &amp; Mitra Strategis
+                </h2>
+            </div>
+
+            <!-- Legalitas & Dokumen Cards (PPT Slides 24-28) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+                <div class="ember-card p-5 rounded-2xl border border-amber-500/40">
+                    <div class="text-2xl mb-2">📜</div>
+                    <div class="text-xs font-mono text-amber-400">No. Pencatatan: 001429332</div>
+                    <h3 class="font-bold text-white text-base mt-1">Hak Cipta Alat Peraga</h3>
+                    <p class="text-xs text-slate-300 mt-1">Surat Pencatatan Ciptaan resmi Kementerian Hukum RI atas
+                        karya alat peraga INTAN.</p>
+                </div>
+                <div class="ember-card p-5 rounded-2xl border border-emerald-500/40">
+                    <div class="text-2xl mb-2">🚀</div>
+                    <div class="text-xs font-mono text-emerald-400">Indikator Terpenuhi: 80%+</div>
+                    <h3 class="font-bold text-white text-base mt-1">TKT-Meter Level 8</h3>
+                    <p class="text-xs text-slate-300 mt-1">Teruji secara nyata pada lingkungan operasional UMKM
+                        sebenarnya dengan hasil stabil.</p>
+                </div>
+                <div class="ember-card p-5 rounded-2xl border border-cyan-500/40">
+                    <div class="text-2xl mb-2">🏅</div>
+                    <div class="text-xs font-mono text-cyan-400">Lampiran 18 Laporan Akhir</div>
+                    <h3 class="font-bold text-white text-base mt-1">Paten Sederhana</h3>
+                    <p class="text-xs text-slate-300 mt-1">Pemberkasan permohonan Paten Sederhana dan draf artikel
+                        ilmiah publikasi.</p>
+                </div>
+                <div class="ember-card p-5 rounded-2xl border border-orange-500/40">
+                    <div class="text-2xl mb-2">📕</div>
+                    <div class="text-xs font-mono text-orange-400">Buku Doktek &amp; Laporan</div>
+                    <h3 class="font-bold text-white text-base mt-1">Dokumen Teknis Produk</h3>
+                    <p class="text-xs text-slate-300 mt-1">Meliputi spesifikasi, instalasi, perawatan, sistem keamanan
+                        K3, dan uji fungsional.</p>
+                </div>
+            </div>
+
+            <!-- 12 Media Massa Wall (PPT Slide 27) & Mitra MoU (PPT Slides 29-32) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Media Coverage -->
+                <div class="lg:col-span-7 ember-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-display font-bold text-lg text-white">📰 Diliput oleh 12 Kanal Media Massa
+                            Nasional &amp; Lokal</h3>
+                        <span
+                            class="text-xs px-2.5 py-1 rounded bg-thermal-500/20 text-amber-300 font-semibold">Diseminasi
+                            Publik</span>
+                    </div>
+                    <p class="text-xs text-slate-300 mb-4">
+                        Inovasi mahasiswa Universitas Padjadjaran dalam memodernisasi produksi kemplang tunu menggunakan
+                        <strong>INTAN</strong> telah dipublikasikan secara luas:
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs font-semibold">
+                        <div
+                            class="p-3 rounded-xl bg-blue-950/60 border border-blue-500/30 text-blue-200 flex items-center gap-2">
+                            📺 TVRI News.com</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-amber-300 flex items-center gap-2">
+                            🗞️ Sripoku.com</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-slate-200 flex items-center gap-2">
+                            🌐 LiputanBandung.com</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-slate-200 flex items-center gap-2">
+                            ✨ DestinasiBandung.co.id</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-amber-200 flex items-center gap-2">
+                            🏛️ Unpad.ac.id</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-slate-200 flex items-center gap-2">
+                            🎓 Fikom Unpad</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-slate-200 flex items-center gap-2">
+                            📍 Informasi Bandung</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-slate-200 flex items-center gap-2">
+                            📝 CatatanBandung.com</div>
+                        <div
+                            class="p-3 rounded-xl bg-charcoal-950 border border-white/10 text-emerald-300 flex items-center gap-2">
+                            ➕ +4 Kanal Media Lainnya</div>
+                    </div>
+                </div>
+
+                <!-- Mitra MoU & Diversifikasi (PPT Slides 29, 30, 32) -->
+                <div class="lg:col-span-5 ember-card p-6 rounded-2xl border border-white/10 space-y-4">
+                    <h3 class="font-display font-bold text-lg text-white">🤝 Kemitraan (MoU) &amp; Diversifikasi Produk
+                    </h3>
+                    <div class="p-3.5 rounded-xl bg-charcoal-950/80 border border-emerald-500/30 text-xs space-y-1">
+                        <div class="font-bold text-emerald-400">1. Mitra Pengguna: D’Nara Rancaekek (MoU Tervalidasi)
+                        </div>
+                        <p class="text-slate-300">Pihak D’Nara Rancaekek (Bapak Amrulfery Irawan) telah menandatangani
+                            MoU dan memvalidasi kesiapan penggunaan INTAN setelah menyaksikan demonstrasi langsung.</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-charcoal-950/80 border border-amber-500/30 text-xs space-y-1">
+                        <div class="font-bold text-amber-400">2. Mitra Manufaktur: Ajasa Steel</div>
+                        <p class="text-slate-300">Kolaborasi kesiapan replikasi dan hilirisasi produksi massal perangkat
+                            pemanggang bagi UMKM.</p>
+                    </div>
+                    <div class="pt-1">
+                        <div class="text-xs font-bold text-slate-300 mb-2">🍢 Peluang Diversifikasi Komoditas Panggangan
+                            (Slide 32):</div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div
+                                class="p-2.5 rounded-xl bg-white/5 border border-white/10 font-semibold text-amber-300">
+                                🌭 Sosis Bakar</div>
+                            <div
+                                class="p-2.5 rounded-xl bg-white/5 border border-white/10 font-semibold text-amber-300">
+                                🍘 Opak Bakar</div>
+                            <div
+                                class="p-2.5 rounded-xl bg-white/5 border border-white/10 font-semibold text-amber-300">
+                                🌽 Jagung Bakar</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-14 bg-charcoal-950 text-slate-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 space-y-10">
+
+            <!-- Team Members Grid (From PPT Slide 10) -->
+            <div>
+                <div class="text-center mb-8">
+                    <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Tim Pelaksana PKM-KI
+                        Universitas Padjadjaran 2026</span>
+                    <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1">Inovator di Balik INTAN
+                    </h2>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-amber-500/40 text-center">
+                        <div
+                            class="w-12 h-12 mx-auto rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold text-lg mb-2">
+                            IF</div>
+                        <div class="font-bold text-white text-sm">Irfan Fransisco</div>
+                        <div class="text-[11px] text-amber-400 font-semibold mt-0.5">Ketua Tim Pelaksana</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-white/10 text-center">
+                        <div
+                            class="w-12 h-12 mx-auto rounded-full bg-white/10 text-slate-200 flex items-center justify-center font-bold text-lg mb-2">
+                            IR</div>
+                        <div class="font-bold text-white text-sm">Iwan Ridwan Ramdani</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Anggota Tim</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-white/10 text-center">
+                        <div
+                            class="w-12 h-12 mx-auto rounded-full bg-white/10 text-slate-200 flex items-center justify-center font-bold text-lg mb-2">
+                            MR</div>
+                        <div class="font-bold text-white text-sm">M. Rafi Aulia Amrullah</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Anggota Tim</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-white/10 text-center">
+                        <div
+                            class="w-12 h-12 mx-auto rounded-full bg-white/10 text-slate-200 flex items-center justify-center font-bold text-lg mb-2">
+                            DY</div>
+                        <div class="font-bold text-white text-sm">Daryl Yudhopatria A.</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Anggota Tim</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-charcoal-900 border border-white/10 text-center">
+                        <div
+                            class="w-12 h-12 mx-auto rounded-full bg-white/10 text-slate-200 flex items-center justify-center font-bold text-lg mb-2">
+                            AF</div>
+                        <div class="font-bold text-white text-sm">Achmad Faruq M.</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Anggota Tim</div>
+                    </div>
+                    <div
+                        class="p-4 rounded-2xl bg-gradient-to-b from-thermal-600/30 to-charcoal-900 border border-thermal-500/40 text-center">
+                        <div
+                            class="w-12 h-12 mx-auto rounded-full bg-thermal-500/30 text-amber-200 flex items-center justify-center font-bold text-lg mb-2">
+                            AY</div>
+                        <div class="font-bold text-white text-sm">Andri Yanto, S.Sos., M.I.Kom.</div>
+                        <div class="text-[11px] text-amber-300 font-semibold mt-0.5">Dosen Pendamping</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referensi (Harvard Style) & Kontak Sosial Media -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-6 border-t border-white/10 text-xs">
+                <div class="lg:col-span-7 space-y-2">
+                    <div class="font-bold text-white uppercase tracking-wider">📚 Referensi Ilmiah (Harvard Style —
+                        Pedoman PIMNAS Pasal 4.6)</div>
+                    <ul class="space-y-1.5 text-slate-400 leading-relaxed">
+                        <li>• Badan Pusat Statistik Provinsi Sumatera Selatan, 2026. <em>Profil industri mikro dan kecil
+                                Provinsi Sumatera Selatan 2024</em>. Palembang: BPS Provinsi Sumatera Selatan.</li>
+                        <li>• Food and Agriculture Organization of the United Nations, 2022. <em>The state of food and
+                                agriculture 2022: Leveraging automation in agriculture for transforming agrifood
+                                systems</em>. Rome: FAO. https://doi.org/10.4060/cb9479en</li>
+                    </ul>
+                    <div class="pt-2 text-slate-400">
+                        <strong>Ucapan Terima Kasih:</strong> Terima kasih kepada Kementerian Pendidikan Tinggi, Sains,
+                        dan Teknologi, Direktorat Pembelajaran dan Kemahasiswaan, Universitas Padjadjaran, dosen
+                        pendamping, D’Nara Rancaekek, serta Ajasa Steel atas dukungan dalam pengembangan INTAN.
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-3">
+                    <div class="font-bold text-white uppercase tracking-wider">🔗 Kanal Resmi &amp; Narahubung INTAN
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="https://www.instagram.com/intan_pkmki/" target="_blank" rel="noopener noreferrer"
+                            class="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 transition">
+                            <span>📸</span> <span>@intan_pkmki</span>
+                        </a>
+                        <a href="https://youtu.be/UZ4ZYx_NoIY" target="_blank" rel="noopener noreferrer"
+                            class="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 transition">
+                            <span>▶️</span> <span>INTAN PKM-KI Unpad</span>
+                        </a>
+                        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
+                            <span>🎵</span> <span>TikTok: @intan.pkmki</span>
+                        </div>
+                        <div
+                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2 truncate">
+                            <span>✉️</span> <span class="truncate">msrskemplantunu@gmail.com</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+                <span>© 2026 Tim PKM-KI INTAN Universitas Padjadjaran • "Local Creation, Modern Automation"</span>
+                <span>Seluruh dokumentasi visual: Sumber: Dokumentasi Pribadi, 2026</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="videoModal"
+        class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="bg-charcoal-900 border border-orange-500/40 rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl">
+            <div class="px-5 py-3.5 bg-charcoal-950 flex items-center justify-between border-b border-white/10">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🎬</span>
+                    <span class="font-display font-bold text-white text-sm sm:text-base">Video Demonstrasi Alat INTAN
+                        (Skala 1:1)</span>
+                </div>
+                <button onclick="closeVideoModal()"
+                    class="px-3 py-1 rounded-lg bg-white/10 hover:bg-rose-600 text-white text-xs font-bold transition">Tutup
+                    ✕</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-white/10">
+                    <iframe id="youtubeIframe" class="w-full h-full" src="" title="Video Demonstrasi INTAN"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                </div>
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-300 bg-charcoal-950 p-3.5 rounded-xl border border-white/10">
+                    <p><strong>Bab IX (9.1):</strong> Meliput proses instalasi, interaksi modul relai &amp; histeresis
+                        kipas, pergerakan rotasi 6 servo, hingga pembakaran kemplang matang.</p>
+                    <a href="https://youtu.be/UZ4ZYx_NoIY" target="_blank" rel="noopener noreferrer"
+                        class="shrink-0 px-4 py-2 rounded-xl bg-thermal-500 hover:bg-thermal-600 text-white font-bold text-center transition">
+                        Buka di YouTube ↗
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sopStepsData = [
+            { step: 1, phase: '1', phaseName: 'Fase 1: Persiapan & Instalasi', title: 'Inspeksi Visual & Keamanan ECU', desc: 'Pastikan tangan kering. Periksa kotak kontrol elektronika (ECU) dari benda asing, air, atau debu berlebih pada celah casing.', icon: '🧤' },
+            { step: 2, phase: '1', phaseName: 'Fase 1: Persiapan & Instalasi', title: 'Instalasi Rak Penjepit pada Servo', desc: 'Masukkan ujung tangkai rak penjepit Stainless Steel SUS 304 ke dalam lubang dudukan rotor motor servo secara presisi.', icon: '🔩' },
+            { step: 3, phase: '1', phaseName: 'Fase 1: Persiapan & Instalasi', title: 'Penguncian Mekanis Rak Penjepit', desc: 'Pasang dan kencangkan mur pengunci pada tangkai penjepit agar rak stabil dan tidak terlepas saat berputar menahan beban.', icon: '🔧' },
+            { step: 4, phase: '1', phaseName: 'Fase 1: Persiapan & Instalasi', title: 'Integrasi Daya & Kalibrasi Rotasi 180°', desc: 'Hubungkan steker ke stopkontak ber-arde, tekan Power ON untuk uji kalibrasi 6 servo berputar 180°, lalu OFF sementara.', icon: '⚡' },
+            { step: 5, phase: '2', phaseName: 'Fase 2: Penyiapan Bahan Bakar', title: 'Pengisian Arang / Briket (Clearance 5–7 cm)', desc: 'Tarik kedua laci bahan bakar depan, susun arang merata dan sisakan jarak aman 5–7 cm dari kisi penjepit kemplang.', icon: '🪨' },
+            { step: 6, phase: '2', phaseName: 'Fase 2: Penyiapan Bahan Bakar', title: 'Pemasangan Laci Pembakaran', desc: 'Dorong dan masukkan kembali laci pembakaran pertama dan kedua ke dalam rel bodi utama INTAN hingga tertutup rapat.', icon: '🗄️' },
+            { step: 7, phase: '2', phaseName: 'Fase 2: Penyiapan Bahan Bakar', title: 'Pemantikan Bara Api Bebas Asap', desc: 'Nyalakan arang menggunakan blow torch secara merata hingga menjadi bara merah stabil berabu tipis dan bebas asap tebal.', icon: '🔥' },
+            { step: 8, phase: '3', phaseName: 'Fase 3: Operasional Otomasi', title: 'Posisi Termokopel & Setelan Dimmer', desc: 'Nyalakan Power ON, pastikan probe Termokopel Tipe-K di atas bara, dan sesuaikan hembusan blower via 2 knob dimmer.', icon: '🎛️' },
+            { step: 9, phase: '3', phaseName: 'Fase 3: Operasional Otomasi', title: 'Pemantauan LCD & Histeresis Otomatis', desc: 'Sistem menjaga suhu 550–600°C. Jika suhu ≥600°C, mikrokontroler otomatis mematikan blower (Cut-off) agar tidak gosong.', icon: '📟' },
+            { step: 10, phase: '3', phaseName: 'Fase 3: Operasional Otomasi', title: 'Pemuatan Adonan (Wajib Kitchen Tongs)', desc: 'Gunakan capitan masak (kitchen tongs) untuk memuat 6 kemplang mentah ke celah rak penjepit. Dilarang memakai tangan kosong.', icon: '🥢' },
+            { step: 11, phase: '3', phaseName: 'Fase 3: Operasional Otomasi', title: 'Pemanggangan & Pemanenan (45–48 Detik)', desc: 'Servo membalik kemplang tiap 15 detik. Saat kemplang mekar kecokelatan merata (rata-rata 46,5 detik), angkat dengan capitan.', icon: '🍘' },
+            { step: 12, phase: '4', phaseName: 'Fase 4: Perawatan Pasca-Produksi', title: 'Pendinginan & Pencucian Rak Detachable', desc: 'Matikan mesin, tunggu dingin, lap bodi stainless steel (hindari air pada ECU), lalu lepas rak penjepit untuk dicuci bersih.', icon: '✨' }
+        ];
+
+        function renderSopSteps(filterPhase = 'all') {
+            const container = document.getElementById('sopStepsGrid');
+            container.innerHTML = '';
+            const filtered = filterPhase === 'all' ? sopStepsData : sopStepsData.filter(s => s.phase === filterPhase);
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'ember-card p-5 rounded-2xl border border-white/10 hover:border-amber-500/40 transition flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-thermal-500/20 border border-thermal-500/40 text-amber-300 font-mono text-xs font-bold">
+                                LANGKAH ${item.step < 10 ? '0' + item.step : item.step}
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-medium">${item.phaseName}</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl shrink-0">${item.icon}</div>
+                            <div>
+                                <h4 class="font-display font-bold text-white text-sm sm:text-base">${item.title}</h4>
+                                <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">${item.desc}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-2.5 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-500">
+                        <span>Standar SOP Bab IV (4.2)</span>
+                        <span>Sumber: Dokumentasi Pribadi, 2026</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterSopPhase(phase) {
+            renderSopSteps(phase);
+        }
+
+        function updateCalculator() {
+            const hours = parseInt(document.getElementById('calcHoursSlider').value, 10);
+            document.getElementById('calcHoursLabel').textContent = hours + ' Jam / Hari';
+            const minManual = hours * 80;
+            const maxManual = hours * 100;
+            const minIntan = hours * 400;
+            const maxIntan = hours * 420;
+            const manualDefect = Math.round(((minManual + maxManual) / 2) * 0.1);
+            const monthlyIntan = maxIntan * 25;
+
+            document.getElementById('calcManualOut').textContent = minManual.toLocaleString('id-ID') + '–' + maxManual.toLocaleString('id-ID');
+            document.getElementById('calcManualDefect').textContent = '~' + manualDefect.toLocaleString('id-ID') + ' keping';
+            document.getElementById('calcIntanOut').textContent = minIntan.toLocaleString('id-ID') + '–' + maxIntan.toLocaleString('id-ID');
+            document.getElementById('calcMonthlyOut').textContent = monthlyIntan.toLocaleString('id-ID');
+        }
+
+        function switchTechTab(tab) {
+            const dimEl = document.getElementById('techTabDimensi');
+            const wirEl = document.getElementById('techTabWiring');
+            const btnDim = document.getElementById('tabBtnDimensi');
+            const btnWir = document.getElementById('tabBtnWiring');
+            if (tab === 'dimensi') {
+                dimEl.classList.remove('hidden');
+                wirEl.classList.add('hidden');
+                btnDim.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-thermal-500 text-white';
+                btnWir.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-white/10 text-slate-300 hover:bg-white/20';
+            } else {
+                wirEl.classList.remove('hidden');
+                dimEl.classList.add('hidden');
+                btnWir.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-thermal-500 text-white';
+                btnDim.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-white/10 text-slate-300 hover:bg-white/20';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const m = document.getElementById('mobileMenu');
+            m.classList.toggle('hidden');
+        }
+
+        function openVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('youtubeIframe');
+            iframe.src = 'https://www.youtube.com/embed/UZ4ZYx_NoIY?autoplay=1';
+            modal.classList.remove('hidden');
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('youtubeIframe');
+            iframe.src = '';
+            modal.classList.add('hidden');
+        }
+
+        let scene, camera, renderer;
+        let roasterGroup, drawerLeftGroup, drawerRightGroup, servoHoodGroup, studioFloorMesh;
+        let rackPivotGroups = [];
+        let emberMeshes = [];
+        let emberParticles = [];
+        let airParticles = [];
+        let blowerImpellers = [];
+        let emberPointLight1, emberPointLight2, studioWarmLight;
+
+        // Interactive 3D State
+        let isDrawerOpen = false;
+        let targetDrawerZ = 0;
+        let isHoodOpen = false;
+        let targetHoodAngle = 0;
+        let isFlipped180 = false;
+        let flipStartTime = 0;
+        let isHysteresisCutoff = false;
+        let isStudioWhiteBg = true;
+        let isAutoTurntable = false;
+        let autoFlipEnabled = true;
+
+        // Orbit Camera spherical coordinates (Default set to Still 1 angle)
+        let camTheta = -0.62;
+        let camPhi = 0.88;
+        let camRadius = 10.8;
+        let targetCamTheta = -0.62;
+        let targetCamPhi = 0.88;
+        let targetCamRadius = 10.8;
+        let camLookAt = new THREE.Vector3(0, 0.15, 0);
+        let targetLookAt = new THREE.Vector3(0, 0.15, 0);
+
+        let isDragging = false;
+        let prevMouse = { x: 0, y: 0 };
+
+        // Helper: Generate Procedural Brushed Stainless & Ash Textures via HTML5 Canvas
+        function createProceduralTextures() {
+            // 1. Brushed Stainless Steel Bump/Roughness Map
+            const metalCanvas = document.createElement('canvas');
+            metalCanvas.width = 256;
+            metalCanvas.height = 256;
+            const mCtx = metalCanvas.getContext('2d');
+            mCtx.fillStyle = '#d4d8dd';
+            mCtx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 900; i++) {
+                const gray = 190 + Math.floor(Math.random() * 55);
+                mCtx.fillStyle = `rgb(${gray},${gray},${gray})`;
+                mCtx.fillRect(Math.random() * 256, Math.random() * 256, 28 + Math.random() * 60, 1.2);
+            }
+            const brushedMetalTex = new THREE.CanvasTexture(metalCanvas);
+            brushedMetalTex.wrapS = THREE.RepeatWrapping;
+            brushedMetalTex.wrapT = THREE.RepeatWrapping;
+            brushedMetalTex.repeat.set(3, 2);
+
+            // 2. Granular Grey-White Ash Bed Texture (Matches Still 2 & Still 3)
+            const ashCanvas = document.createElement('canvas');
+            ashCanvas.width = 256;
+            ashCanvas.height = 256;
+            const aCtx = ashCanvas.getContext('2d');
+            aCtx.fillStyle = '#686b6e';
+            aCtx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 6500; i++) {
+                const v = 65 + Math.floor(Math.random() * 145);
+                aCtx.fillStyle = `rgb(${v},${v},${v})`;
+                aCtx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+            }
+            const ashTex = new THREE.CanvasTexture(ashCanvas);
+            ashTex.wrapS = THREE.RepeatWrapping;
+            ashTex.wrapT = THREE.RepeatWrapping;
+            ashTex.repeat.set(4, 4);
+
+            // 3. Kemplang Tunu Texture (Raw Cream with Subtle Toasted Patch like Still 1, 2, 3)
+            const kempCanvas = document.createElement('canvas');
+            kempCanvas.width = 256;
+            kempCanvas.height = 256;
+            const kCtx = kempCanvas.getContext('2d');
+            kCtx.fillStyle = '#f5e1be';
+            kCtx.fillRect(0, 0, 256, 256);
+            // Subtle toasted gradient on one edge (exactly like Still 2 & Still 3 first cracker)
+            const toastGrad = kCtx.createRadialGradient(75, 128, 15, 130, 128, 130);
+            toastGrad.addColorStop(0, 'rgba(194, 122, 70, 0.52)');
+            toastGrad.addColorStop(0.55, 'rgba(235, 205, 160, 0.2)');
+            toastGrad.addColorStop(1, 'rgba(245, 225, 190, 0)');
+            kCtx.fillStyle = toastGrad;
+            kCtx.fillRect(0, 0, 256, 256);
+            // Cracker surface pores
+            for (let i = 0; i < 900; i++) {
+                kCtx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.25)' : 'rgba(180,140,95,0.18)';
+                kCtx.beginPath();
+                kCtx.arc(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2.5, 0, Math.PI * 2);
+                kCtx.fill();
+            }
+            const kemplangTex = new THREE.CanvasTexture(kempCanvas);
+
+            return { brushedMetalTex, ashTex, kemplangTex };
+        }
+
+        function init3DRoaster() {
+            const container = document.getElementById('canvasContainer');
+            const canvas = document.getElementById('roaster3dCanvas');
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 100);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.15;
+
+            const { brushedMetalTex, ashTex, kemplangTex } = createProceduralTextures();
+
+            // Studio Lighting Setup (Matches Still 1 & Still 2 warm rose-gold + cool studio highlights)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+            scene.add(ambientLight);
+
+            const mainStudioLight = new THREE.DirectionalLight(0xfffaf0, 1.35);
+            mainStudioLight.position.set(7, 13, 8);
+            mainStudioLight.castShadow = true;
+            mainStudioLight.shadow.mapSize.width = 2048;
+            mainStudioLight.shadow.mapSize.height = 2048;
+            mainStudioLight.shadow.camera.near = 1;
+            mainStudioLight.shadow.camera.far = 30;
+            const d = 6.5;
+            mainStudioLight.shadow.camera.left = -d;
+            mainStudioLight.shadow.camera.right = d;
+            mainStudioLight.shadow.camera.top = d;
+            mainStudioLight.shadow.camera.bottom = -d;
+            mainStudioLight.shadow.bias = -0.0005;
+            scene.add(mainStudioLight);
+
+            // Warm copper/peach reflection light seen on the hood in Still 1
+            studioWarmLight = new THREE.DirectionalLight(0xffbfa3, 0.75);
+            studioWarmLight.position.set(-6, 8, -7);
+            scene.add(studioWarmLight);
+
+            const rimLight = new THREE.DirectionalLight(0xe0f2fe, 0.55);
+            rimLight.position.set(0, 5, -10);
+            scene.add(rimLight);
+
+            // Internal Glowing Charcoal Point Lights
+            emberPointLight1 = new THREE.PointLight(0xff3b00, 2.6, 4.8);
+            emberPointLight1.position.set(-1.55, 0.05, 0.15);
+            scene.add(emberPointLight1);
+
+            emberPointLight2 = new THREE.PointLight(0xff3b00, 2.6, 4.8);
+            emberPointLight2.position.set(1.55, 0.05, 0.15);
+            scene.add(emberPointLight2);
+
+            // Studio Shadow-Catching Floor Plane (Visible in Still 1 & Still 2)
+            const floorGeo = new THREE.PlaneGeometry(36, 36);
+            const floorMat = new THREE.ShadowMaterial({ opacity: 0.22 });
+            studioFloorMesh = new THREE.Mesh(floorGeo, floorMat);
+            studioFloorMesh.rotation.x = -Math.PI / 2;
+            studioFloorMesh.position.y = -1.24;
+            studioFloorMesh.receiveShadow = true;
+            scene.add(studioFloorMesh);
+
+            // PBR Materials Matching Still 1, Still 2, Still 3
+            const sus304Mat = new THREE.MeshStandardMaterial({
+                color: 0xd8dce0,
+                map: brushedMetalTex,
+                bumpMap: brushedMetalTex,
+                bumpScale: 0.004,
+                metalness: 0.82,
+                roughness: 0.24
+            });
+
+            consthoodBrushedMat = new THREE.MeshStandardMaterial({
+                color: 0xc4c9ce,
+                map: brushedMetalTex,
+                bumpMap: brushedMetalTex,
+                bumpScale: 0.006,
+                metalness: 0.78,
+                roughness: 0.28
+            });
+
+            const darkChamberMat = new THREE.MeshStandardMaterial({
+                color: 0x3f444a,
+                metalness: 0.7,
+                roughness: 0.42
+            });
+
+            const wireClampMat = new THREE.MeshStandardMaterial({
+                color: 0xf1f5f9,
+                metalness: 0.85,
+                roughness: 0.18
+            });
+
+            const blowerChromeMat = new THREE.MeshStandardMaterial({
+                color: 0xe2e8f0,
+                metalness: 0.9,
+                roughness: 0.18
+            });
+
+            const motorDarkMat = new THREE.MeshStandardMaterial({
+                color: 0x272a30,
+                metalness: 0.45,
+                roughness: 0.55
+            });
+
+            const orangeKnobMat = new THREE.MeshStandardMaterial({
+                color: 0xea6a15,
+                metalness: 0.15,
+                roughness: 0.32
+            });
+
+            const kemplangMat = new THREE.MeshStandardMaterial({
+                map: kemplangTex,
+                roughness: 0.78,
+                metalness: 0.02
+            });
+
+            roasterGroup = new THREE.Group();
+            scene.add(roasterGroup);
+
+            const bodyWidth = 6.2;
+            const bodyHeight = 1.65;
+            const bodyDepth = 2.35;
+            const wallThick = 0.08;
+
+            // 1. MAIN ROASTING TROUGH (2 Chambers with center slot as in Still 3)
+            const bottomPlate = new THREE.Mesh(new THREE.BoxGeometry(bodyWidth, wallThick, bodyDepth), sus304Mat);
+            bottomPlate.position.set(0, -bodyHeight / 2 + wallThick / 2, 0.22);
+            bottomPlate.castShadow = true;
+            bottomPlate.receiveShadow = true;
+            roasterGroup.add(bottomPlate);
+
+            // Outer Left & Right Walls with Circular Blower Air Inlet Cutout Visual
+            [-1, 1].forEach(side => {
+                const sWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, bodyHeight, bodyDepth), sus304Mat);
+                sWall.position.set(side * (bodyWidth / 2 - wallThick / 2), 0, 0.22);
+                sWall.castShadow = true;
+                sWall.receiveShadow = true;
+                roasterGroup.add(sWall);
+
+                // Circular dark air outlet hole inside the chamber wall (Clearly visible in Still 2 & Still 3)
+                const airHoleRim = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.11, 24), blowerChromeMat);
+                airHoleRim.rotation.z = Math.PI / 2;
+                airHoleRim.position.set(side * (bodyWidth / 2 - 0.05), -0.15, -0.25);
+                roasterGroup.add(airHoleRim);
+
+                const airHoleDark = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.22, 0.22, 0.12, 24),
+                    new THREE.MeshBasicMaterial({ color: 0x090a0f })
+                );
+                airHoleDark.rotation.z = Math.PI / 2;
+                airHoleDark.position.set(side * (bodyWidth / 2 - 0.05), -0.15, -0.25);
+                roasterGroup.add(airHoleDark);
+            });
+
+            // Central Divider Wall between Left & Right Chambers (With narrow vertical gap at front as in Still 3)
+            const centerDivider = new THREE.Mesh(new THREE.BoxGeometry(0.08, bodyHeight, bodyDepth - 0.06), sus304Mat);
+            centerDivider.position.set(0, 0, 0.22);
+            roasterGroup.add(centerDivider);
+
+            // Upper Front Lip Rim (Left & Right halves with narrow gap in center as seen in Still 3)
+            [-1.56, 1.56].forEach(lx => {
+                const topLip = new THREE.Mesh(new THREE.BoxGeometry(3.04, 0.22, wallThick), sus304Mat);
+                topLip.position.set(lx, bodyHeight / 2 - 0.11, bodyDepth / 2 + 0.22 - wallThick / 2);
+                roasterGroup.add(topLip);
+            });
+
+            // Rear Wall separating Roasting Trough from Servo Compartment
+            const troughBackWall = new THREE.Mesh(new THREE.BoxGeometry(bodyWidth, bodyHeight, wallThick), sus304Mat);
+            troughBackWall.position.set(0, 0, -bodyDepth / 2 + 0.22);
+            roasterGroup.add(troughBackWall);
+
+            // 4 Caster Wheels with Red-Orange Rims & Black Tires (Still 1 & Still 3)
+            const wheelCoords = [
+                [-bodyWidth / 2 + 0.32, -1.04, bodyDepth / 2 + 0.05],
+                [bodyWidth / 2 - 0.32, -1.04, bodyDepth / 2 + 0.05],
+                [-bodyWidth / 2 + 0.32, -1.04, -bodyDepth / 2 - 0.45],
+                [bodyWidth / 2 - 0.32, -1.04, -bodyDepth / 2 - 0.45]
+            ];
+            const redRimMat = new THREE.MeshStandardMaterial({ color: 0xd9381e, roughness: 0.35 });
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.8 });
+            wheelCoords.forEach(pos => {
+                const wGroup = new THREE.Group();
+                wGroup.position.set(pos[0], pos[1], pos[2]);
+                const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 0.12, 20), tireMat);
+                tire.rotation.z = Math.PI / 2;
+                const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.13, 16), redRimMat);
+                rim.rotation.z = Math.PI / 2;
+                wGroup.add(tire, rim);
+                roasterGroup.add(wGroup);
+            });
+
+            // 2. SLIDING CHARCOAL DRAWERS (With Ash Bed + 3 Black Glowing Briquette Logs per Chamber as in Still 2 & 3)
+            const ashBedMat = new THREE.MeshStandardMaterial({
+                map: ashTex,
+                bumpMap: ashTex,
+                bumpScale: 0.025,
+                roughness: 0.92,
+                metalness: 0.05
+            });
+
+            const blackCharcoalMat = new THREE.MeshStandardMaterial({
+                color: 0x18191c,
+                roughness: 0.65,
+                metalness: 0.15,
+                bumpMap: ashTex,
+                bumpScale: 0.02
+            });
+
+            const glowingCrackMat = new THREE.MeshStandardMaterial({
+                color: 0xff2a00,
+                emissive: 0xff3b00,
+                emissiveIntensity: 2.2,
+                roughness: 0.4
+            });
+
+            function createDetailedDrawer(xCenter, logXOffsets) {
+                const dGroup = new THREE.Group();
+
+                // Drawer Front Face Plate (Brushed Steel with bevel border)
+                const frontFace = new THREE.Mesh(new THREE.BoxGeometry(2.96, 1.32, 0.08), sus304Mat);
+                frontFace.position.set(xCenter, -0.14, bodyDepth / 2 + 0.22);
+                frontFace.castShadow = true;
+                dGroup.add(frontFace);
+
+                // Inner Drawer Tray Walls
+                const trayBase = new THREE.Mesh(new THREE.BoxGeometry(2.86, 0.08, 2.15), darkChamberMat);
+                trayBase.position.set(xCenter, -0.68, 0.22);
+                dGroup.add(trayBase);
+
+                // Textured Grey-White Ash Bed inside Drawer (Matches Still 2 & Still 3)
+                const ashBed = new THREE.Mesh(new THREE.BoxGeometry(2.82, 0.18, 2.08), ashBedMat);
+                ashBed.position.set(xCenter, -0.36, 0.22);
+                ashBed.receiveShadow = true;
+                dGroup.add(ashBed);
+
+                // Stepped Cylindrical Orange Handle Knob (Exact shape from Still 1 & Still 2)
+                const knobNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.16, 20), orangeKnobMat);
+                knobNeck.rotation.x = Math.PI / 2;
+                knobNeck.position.set(xCenter, -0.14, bodyDepth / 2 + 0.30);
+                dGroup.add(knobNeck);
+
+                const knobHead = new THREE.Mesh(new THREE.CylinderGeometry(0.135, 0.135, 0.12, 24), orangeKnobMat);
+                knobHead.rotation.x = Math.PI / 2;
+                knobHead.position.set(xCenter, -0.14, bodyDepth / 2 + 0.40);
+                dGroup.add(knobHead);
+
+                // 3 Elongated Black Charcoal Briquettes/Logs with Red-Orange Glowing Ember Cores (Exact match to Still 2 & Still 3)
+                logXOffsets.forEach((lx, idx) => {
+                    const logGroup = new THREE.Group();
+                    logGroup.position.set(lx, -0.16, 0.18);
+                    logGroup.rotation.y = (idx - 1) * 0.06;
+
+                    // Main black irregular charcoal log
+                    const charcoalLog = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 1.35, 9), blackCharcoalMat);
+                    charcoalLog.rotation.x = Math.PI / 2;
+                    charcoalLog.scale.set(1.05, 0.72, 1.0);
+                    charcoalLog.castShadow = true;
+                    logGroup.add(charcoalLog);
+
+                    // Glowing red-orange ember core fissure on the side/top of each charcoal log
+                    const emberCore = new THREE.Mesh(new THREE.DodecahedronGeometry(0.17, 1), glowingCrackMat);
+                    emberCore.position.set(-0.06, 0.05, -0.05 + (idx % 2) * 0.12);
+                    emberCore.scale.set(0.9, 0.65, 1.85);
+                    logGroup.add(emberCore);
+                    emberMeshes.push(emberCore);
+
+                    dGroup.add(logGroup);
+                });
+
+                return dGroup;
+            }
+
+            const leftRackX = [-2.42, -1.52, -0.62];
+            const rightRackX = [0.62, 1.52, 2.42];
+            drawerLeftGroup = createDetailedDrawer(-1.54, [-2.18, -1.54, -0.92]);
+            drawerRightGroup = createDetailedDrawer(1.54, [0.92, 1.54, 2.18]);
+            roasterGroup.add(drawerLeftGroup, drawerRightGroup);
+
+            // 3. SIX HAIRPIN U-LOOP WIRE CLAMPING RACKS + 1 ROUND KEMPLANG EACH (Exact match to Still 1, Still 2, Still 3)
+            const allRackX = [...leftRackX, ...rightRackX];
+            allRackX.forEach((rx, idx) => {
+                const pivot = new THREE.Group();
+                // Pivot axis goes through the rear bearing slot on the trough back wall
+                pivot.position.set(rx, 0.46, 0.22);
+
+                // Small metallic hinge bearing on the rear wall (Visible in Still 3)
+                const rearBearing = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.14, 12), wireClampMat);
+                rearBearing.rotation.x = Math.PI / 2;
+                rearBearing.position.set(rx, 0.46, -bodyDepth / 2 + 0.22);
+                roasterGroup.add(rearBearing);
+
+                // Rear main drive shaft rod entering the servo box
+                const driveRod = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.55, 12), wireClampMat);
+                driveRod.rotation.x = Math.PI / 2;
+                driveRod.position.set(0, 0, -0.88);
+                pivot.add(driveRod);
+
+                // Hairpin U-Loop Wire Tongs (Top and Bottom wire frames clamping the Kemplang)
+                [-0.032, 0.032].forEach(yOff => {
+                    // Left & right long wire arms tapering slightly toward the rear shaft
+                    [-1, 1].forEach(sideArm => {
+                        const armMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.72, 10), wireClampMat);
+                        armMesh.rotation.x = Math.PI / 2;
+                        armMesh.rotation.z = sideArm * 0.045;
+                        armMesh.position.set(sideArm * 0.055, yOff, 0.08);
+                        armMesh.castShadow = true;
+                        pivot.add(armMesh);
+                    });
+
+                    // Rounded U-Loop Tip at the front end of the clamp (extending slightly past the Kemplang as in Still 3)
+                    const uLoopGeo = new THREE.TorusGeometry(0.095, 0.015, 10, 20, Math.PI);
+                    const uLoopMesh = new THREE.Mesh(uLoopGeo, wireClampMat);
+                    uLoopMesh.rotation.x = Math.PI / 2;
+                    uLoopMesh.position.set(0, yOff, 0.94);
+                    pivot.add(uLoopMesh);
+                });
+
+                // 1 Round Kemplang Tunu Disc Clamped Near the Front End of Each Wire Loop (Exact match to Still 2 & Still 3)
+                const kemplangDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.37, 0.042, 32), kemplangMat);
+                kemplangDisc.position.set(0, 0, 0.52);
+                // Rotate first cracker slightly so the toasted edge matches Still 2 & Still 3
+                kemplangDisc.rotation.y = idx === 0 ? 0.2 : Math.PI + idx * 0.5;
+                kemplangDisc.castShadow = true;
+                kemplangDisc.receiveShadow = true;
+                pivot.add(kemplangDisc);
+
+                // Slight tilt angle like Still 3 so viewers see the 3D depth of the 6 clamps immediately
+                const initialAngle = 0.22;
+                pivot.rotation.z = initialAngle;
+
+                roasterGroup.add(pivot);
+                rackPivotGroups.push({
+                    group: pivot,
+                    kemplang: kemplangDisc,
+                    index: idx,
+                    currentAngle: initialAngle,
+                    targetAngle: initialAngle
+                });
+            });
+
+            // 4. REAR SERVO COMPARTMENT, SLANTED HOOD, LCD BEZEL, & 2 PROTRUDING DIMMER KNOBS (Still 2 & Still 3)
+            const ecuDepth = 1.05;
+            const ecuZ = -bodyDepth / 2 + 0.22 - ecuDepth / 2;
+
+            // Lower Rear ECU Housing Box
+            const ecuLowerBox = new THREE.Mesh(new THREE.BoxGeometry(bodyWidth, 1.18, ecuDepth), hoodBrushedMat);
+            ecuLowerBox.position.set(0, -0.22, ecuZ);
+            ecuLowerBox.castShadow = true;
+            ecuLowerBox.receiveShadow = true;
+            roasterGroup.add(ecuLowerBox);
+
+            // 6 Internal Servo MG996R Units + Horns (Revealed when Slanted Hood is opened)
+            const servoMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.3, metalness: 0.2 });
+            allRackX.forEach(rx => {
+                const sBlock = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.44), servoMat);
+                sBlock.position.set(rx, 0.45, ecuZ + 0.18);
+                roasterGroup.add(sBlock);
+            });
+
+            // Hinged Slanted/Beveled Top Cover Hood (Matches exact profile in Still 1 & Still 3)
+            servoHoodGroup = new THREE.Group();
+            // Pivot hinge along the rear top edge
+            servoHoodGroup.position.set(0, 0.37, ecuZ - ecuDepth / 2);
+
+            // Main flat top section of the hood
+            const hoodTop = new THREE.Mesh(new THREE.BoxGeometry(bodyWidth, 0.48, ecuDepth * 0.82), hoodBrushedMat);
+            hoodTop.position.set(0, 0.24, ecuDepth * 0.41);
+            hoodTop.castShadow = true;
+            servoHoodGroup.add(hoodTop);
+
+            // Slanted/beveled front lip of the hood sloping down toward the 6 rack shafts (Visible in Still 1 & Still 3)
+            const hoodBevel = new THREE.Mesh(new THREE.BoxGeometry(bodyWidth - 0.02, 0.38, 0.34), hoodBrushedMat);
+            hoodBevel.position.set(0, 0.16, ecuDepth * 0.84);
+            hoodBevel.rotation.x = 0.52;
+            servoHoodGroup.add(hoodBevel);
+
+            roasterGroup.add(servoHoodGroup);
+
+            // Rear Panel Recessed Blue LCD Screen + Black Bezel (Visible in Still 3 right edge)
+            const lcdFrame = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.38, 0.12), motorDarkMat);
+            lcdFrame.position.set(0, 0.05, ecuZ - ecuDepth / 2 - 0.04);
+            roasterGroup.add(lcdFrame);
+
+            const lcdGlow = new THREE.Mesh(
+                new THREE.BoxGeometry(0.72, 0.25, 0.04),
+                new THREE.MeshBasicMaterial({ color: 0x0096ff })
+            );
+            lcdGlow.position.set(0, 0.05, ecuZ - ecuDepth / 2 - 0.09);
+            roasterGroup.add(lcdGlow);
+
+            // 2 Protruding Cylindrical Black/Silver Dimmer Knobs (Clearly visible in Still 2 top view & Still 3 right side)
+            [-0.82, 0.82].forEach(kx => {
+                const knobGroup = new THREE.Group();
+                knobGroup.position.set(kx, 0.08, ecuZ - ecuDepth / 2 - 0.06);
+
+                const knobBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.16, 24), motorDarkMat);
+                knobBase.rotation.x = Math.PI / 2;
+                const knobCap = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.12, 24), sus304Mat);
+                knobCap.rotation.x = Math.PI / 2;
+                knobCap.position.z = -0.10;
+                const knobRing = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.04, 24), motorDarkMat);
+                knobRing.rotation.x = Math.PI / 2;
+                knobRing.position.z = -0.17;
+
+                knobGroup.add(knobBase, knobCap, knobRing);
+                roasterGroup.add(knobGroup);
+            });
+
+            // Red Power Switch on Rear Far Left/Right
+            const redSwitch = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.22, 0.08),
+                new THREE.MeshBasicMaterial({ color: 0xdc2626 })
+            );
+            redSwitch.position.set(-2.45, 0.05, ecuZ - ecuDepth / 2 - 0.04);
+            roasterGroup.add(redSwitch);
+
+            // 5. DUAL CENTRIFUGAL SNAIL BLOWERS (Exact match to Still 1, Still 2, Still 3)
+            function createAuthenticSnailBlower(side) {
+                const bGroup = new THREE.Group();
+                const dir = side === 'left' ? -1 : 1;
+                const bX = dir * (bodyWidth / 2 + 0.62);
+                const bY = 0.22;
+                const bZ = -0.25;
+
+                // Main Toroidal Volute Snail Shell (Shiny Cast Aluminum)
+                const voluteTorus = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.26, 20, 32), blowerChromeMat);
+                voluteTorus.rotation.y = Math.PI / 2;
+                voluteTorus.position.set(bX, bY, bZ);
+                voluteTorus.castShadow = true;
+                bGroup.add(voluteTorus);
+
+                const voluteCore = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.36, 28), blowerChromeMat);
+                voluteCore.rotation.z = Math.PI / 2;
+                voluteCore.position.set(bX, bY, bZ);
+                bGroup.add(voluteCore);
+
+                // Top Mounting Lugs/Ears on Snail Housing (Visible in Still 1 & Still 3)
+                [-0.55, 0, 0.55].forEach(angle => {
+                    const lug = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 12), blowerChromeMat);
+                    lug.rotation.z = Math.PI / 2;
+                    lug.position.set(bX, bY + Math.cos(angle) * 0.72, bZ + Math.sin(angle) * 0.72);
+                    bGroup.add(lug);
+                });
+
+                // Outer Domed Intake Cap with 3 Black Sector Cutouts (Signature detail in Still 1 & Still 3)
+                const domeCap = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.42, 0.16, 28), blowerChromeMat);
+                domeCap.rotation.z = Math.PI / 2;
+                domeCap.position.set(bX + dir * 0.22, bY, bZ);
+                bGroup.add(domeCap);
+
+                // Rotating Impeller / 3 Black Sector Vents Group
+                const ventWheel = new THREE.Group();
+                ventWheel.position.set(bX + dir * 0.305, bY, bZ);
+                for (let v = 0; v < 3; v++) {
+                    const a1 = v * ((Math.PI * 2) / 3) + 0.18;
+                    const a2 = a1 + 1.35;
+                    const sectorGeo = new THREE.RingGeometry(0.07, 0.27, 14, 1, a1, a2 - a1);
+                    const sectorMat = new THREE.MeshBasicMaterial({ color: 0x0f1318, side: THREE.DoubleSide });
+                    const sector = new THREE.Mesh(sectorGeo, sectorMat);
+                    sector.rotation.y = dir * (Math.PI / 2);
+                    ventWheel.add(sector);
+                }
+                bGroup.add(ventWheel);
+                blowerImpellers.push(ventWheel);
+
+                // Inner Motor Drum (Dark Grey Cylinder + Silver End Cap as seen in Still 2)
+                const motorDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.38, 24), motorDarkMat);
+                motorDrum.rotation.z = Math.PI / 2;
+                motorDrum.position.set(bX - dir * 0.28, bY, bZ);
+                bGroup.add(motorDrum);
+
+                // Bright Green Switch Box + Red Switch on Motor (Visible in Still 2)
+                const greenBox = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.18, 0.22, 0.18),
+                    new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.35 })
+                );
+                greenBox.position.set(bX - dir * 0.25, bY + 0.18, bZ - 0.32);
+                bGroup.add(greenBox);
+
+                // Curved Black Power Cable from Blower Motor into Rear ECU Box (Visible in Still 2)
+                const cableCurve = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(bX - dir * 0.25, bY + 0.15, bZ - 0.40),
+                    new THREE.Vector3(bX - dir * 0.15, bY + 0.05, bZ - 0.85),
+                    new THREE.Vector3(dir * (bodyWidth / 2 - 0.02), 0.0, ecuZ)
+                ]);
+                const cableGeo = new THREE.TubeGeometry(cableCurve, 16, 0.022, 8, false);
+                const cableMesh = new THREE.Mesh(cableGeo, tireMat);
+                bGroup.add(cableMesh);
+
+                // 90-Degree Silver L-Elbow Pipe from Bottom of Snail Shell into Chamber Side Wall (Still 1 & Still 2)
+                const pipeCurve = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(bX, bY - 0.42, bZ + 0.22),
+                    new THREE.Vector3(bX, -0.15, -0.22),
+                    new THREE.Vector3(dir * (bodyWidth / 2 - 0.02), -0.15, -0.25)
+                ]);
+                const elbowPipe = new THREE.Mesh(new THREE.TubeGeometry(pipeCurve, 20, 0.21, 20, false), blowerChromeMat);
+                elbowPipe.castShadow = true;
+                bGroup.add(elbowPipe);
+
+                // Flange Collar on Pipe
+                const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.08, 24), blowerChromeMat);
+                collar.position.set(bX, bY - 0.32, bZ + 0.12);
+                collar.rotation.x = 0.35;
+                bGroup.add(collar);
+
+                // Bottom Metal Mounting Bracket Plate (Still 1)
+                const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.05, 0.65), blowerChromeMat);
+                bracket.position.set(bX, -0.45, bZ - 0.12);
+                bGroup.add(bracket);
+
+                return bGroup;
+            }
+
+            roasterGroup.add(createAuthenticSnailBlower('left'));
+            roasterGroup.add(createAuthenticSnailBlower('right'));
+
+            // Rising Heat / Ember Spark Particles above the 6 Charcoal Briquettes
+            const sparkGeo = new THREE.SphereGeometry(0.028, 8, 8);
+            const sparkMat = new THREE.MeshBasicMaterial({ color: 0xff7b00, transparent: true, opacity: 0.85 });
+            for (let i = 0; i < 28; i++) {
+                const sp = new THREE.Mesh(sparkGeo, sparkMat);
+                sp.userData = {
+                    baseX: (Math.random() - 0.5) * 5.2,
+                    baseZ: 0.2 + (Math.random() - 0.5) * 1.4,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.008 + Math.random() * 0.012
+                };
+                roasterGroup.add(sp);
+                emberParticles.push(sp);
+            }
+
+            // Blower Oxygen Airflow Particles inside Chamber
+            const airGeo = new THREE.SphereGeometry(0.038, 8, 8);
+            const airMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
+            for (let i = 0; i < 24; i++) {
+                const p = new THREE.Mesh(airGeo, airMat);
+                p.userData = {
+                    side: i % 2 === 0 ? -1 : 1,
+                    progress: Math.random()
+                };
+                roasterGroup.add(p);
+                airParticles.push(p);
+            }
+
+            // Mouse & Touch Orbit Controls
+            canvas.addEventListener('mousedown', e => {
+                isDragging = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            window.addEventListener('mousemove', e => {
+                if (!isDragging) return;
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                targetCamTheta -= dx * 0.008;
+                targetCamPhi = Math.max(0.12, Math.min(1.48, targetCamPhi - dy * 0.008));
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            canvas.addEventListener('touchstart', e => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }, { passive: true });
+            window.addEventListener('touchend', () => { isDragging = false; });
+            window.addEventListener('touchmove', e => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - prevMouse.x;
+                const dy = e.touches[0].clientY - prevMouse.y;
+                targetCamTheta -= dx * 0.008;
+                targetCamPhi = Math.max(0.12, Math.min(1.48, targetCamPhi - dy * 0.008));
+                prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            canvas.addEventListener('wheel', e => {
+                e.preventDefault();
+                targetCamRadius = Math.max(5.2, Math.min(16, targetCamRadius + e.deltaY * 0.006));
+            }, { passive: false });
+
+            window.addEventListener('resize', () => {
+                if (!container || !renderer) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function manualServoSlide(degVal) {
+            autoFlipEnabled = false;
+            const deg = parseInt(degVal, 10);
+            document.getElementById('servoSliderVal').textContent = deg + '°';
+            document.getElementById('lcdServoAngle').textContent = `POS ${deg}° (MANUAL)`;
+            const rad = (deg * Math.PI) / 180;
+            rackPivotGroups.forEach(item => {
+                item.targetAngle = rad;
+            });
+        }
+
+        function triggerManualFlip() {
+            autoFlipEnabled = true;
+            isFlipped180 = !isFlipped180;
+            flipStartTime = performance.now();
+            const targetDeg = isFlipped180 ? 180 : 0;
+            document.getElementById('servoAngleSlider').value = targetDeg;
+            document.getElementById('servoSliderVal').textContent = targetDeg + '°';
+            rackPivotGroups.forEach(item => {
+                item.targetAngle = isFlipped180 ? Math.PI : 0.22;
+            });
+            document.getElementById('lcdServoAngle').textContent = isFlipped180 ? 'POS 180° (15s)' : 'POS 0° (15s)';
+            updateHotspotCard(
+                'Simulasi Rotasi 6 Servo',
+                '6x Penjepit Kawat U-Loop (Rotasi 180° Staggered 30ms)',
+                'Keenam tangkai kawat penjepit kemplang berputar 180° secara bertahap (staggered 30 ms) melalui poros di dinding belakang untuk mencegah lonjakan arus kejut.'
+            );
+        }
+
+        function toggleStudioLighting() {
+            isStudioWhiteBg = !isStudioWhiteBg;
+            const container = document.getElementById('canvasContainer');
+            const btn = document.getElementById('btnStudioBg');
+            if (isStudioWhiteBg) {
+                container.style.background = 'radial-gradient(circle at 50% 45%, #f4f1ea 0%, #dcd7cd 100%)';
+                if (studioFloorMesh) studioFloorMesh.visible = true;
+                btn.innerHTML = '<span>☀️</span> Latar: Studio Putih (Still 1)';
+            } else {
+                container.style.background = 'radial-gradient(circle at 50% 45%, #1e1614 0%, #090605 100%)';
+                if (studioFloorMesh) studioFloorMesh.visible = false;
+                btn.innerHTML = '<span>🌙</span> Latar: Alpha Gelap (Still 3)';
+            }
+        }
+
+        function toggleAutoTurntable() {
+            isAutoTurntable = !isAutoTurntable;
+            const btn = document.getElementById('btnAutoOrbit');
+            btn.textContent = isAutoTurntable ? '🔄 Putar 360°: ON' : '🔄 Putar 360°: OFF';
+            btn.className = isAutoTurntable
+                ? 'px-2.5 py-1 rounded-lg bg-thermal-500 text-white text-[11px] font-bold transition'
+                : 'px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/15 text-[11px] font-medium text-slate-300 border border-white/10 transition';
+        }
+
+        function toggleDrawers() {
+            isDrawerOpen = !isDrawerOpen;
+            targetDrawerZ = isDrawerOpen ? 1.55 : 0;
+            const btn = document.getElementById('btnDrawer');
+            btn.innerHTML = isDrawerOpen ? '<span>🗄️</span> Tutup Laci Arang' : '<span>🗄️</span> Tarik Laci Arang';
+            if (isDrawerOpen) {
+                setCameraView('front');
+                updateHotspotCard(
+                    'Laci Bahan Bakar Terbuka',
+                    '2x Laci Abu & 6 Briket Arang Membara (Clearance 5–7 cm)',
+                    'Memperlihatkan hamparan abu arang dan 3 bongkahan briket arang menyala di masing-masing kompartemen dengan kenop silinder oranye.'
+                );
+            }
+        }
+
+        function toggleServoHood() {
+            isHoodOpen = !isHoodOpen;
+            targetHoodAngle = isHoodOpen ? -1.05 : 0;
+            const btn = document.getElementById('btnHood');
+            btn.innerHTML = isHoodOpen ? '<span>🛠️</span> Tutup Kap Servo' : '<span>🛠️</span> Buka Kap 6 Servo';
+            if (isHoodOpen) {
+                setCameraView('still3');
+                updateHotspotCard(
+                    'Inspeksi Kompartemen Servo',
+                    'Kap Miring Terbuka — 6x Motor Servo MG996R',
+                    'Menampilkan deretan 6 unit Motor Servo MG996R Metal Gear yang terhubung langsung ke poros penjepit kawat kemplang.'
+                );
+            }
+        }
+
+        function toggleHysteresisCutoff() {
+            isHysteresisCutoff = !isHysteresisCutoff;
+            const btn = document.getElementById('btnBlowerSim');
+            if (isHysteresisCutoff) {
+                btn.innerHTML = '<span>❄️</span> Kembali Suhu Ideal';
+                document.getElementById('lcdTempValue').textContent = '612.4 C';
+                document.getElementById('lcdHysteresisTag').textContent = 'OVERHEAT!';
+                document.getElementById('lcdHysteresisTag').className = 'text-rose-400 font-bold animate-pulse';
+                document.getElementById('lcdBlowerState').textContent = 'CUT-OFF (OFF)';
+                document.getElementById('lcdBlowerState').className = 'text-rose-300';
+                updateHotspotCard(
+                    'Kendali Histeresis Aktif',
+                    'Suhu ≥ 600°C (612,4°C) → Dual Blower Otomatis OFF',
+                    'Saat sensor Termokopel Tipe-K mendeteksi suhu melampaui 600°C (Uji Sampel #4: 612,4°C), relay optocoupler mematikan kedua blower agar kemplang tidak gosong.'
+                );
+            } else {
+                btn.innerHTML = '<span>🌡️</span> Uji Cut-Off ≥600°C';
+                document.getElementById('lcdTempValue').textContent = '571.3 C';
+                document.getElementById('lcdHysteresisTag').textContent = 'IDEAL';
+                document.getElementById('lcdHysteresisTag').className = 'text-emerald-300';
+                document.getElementById('lcdBlowerState').textContent = 'ON (PWM 85%)';
+                document.getElementById('lcdBlowerState').className = 'text-emerald-300';
+                updateHotspotCard(
+                    'Mode Pemulihan Termal',
+                    'Suhu Operasional Ideal (550°C – 600°C)',
+                    'Blower keong kembali menyuplai udara melalui lubang samping ruang bakar untuk menjaga kestabilan bara arang.'
+                );
+            }
+        }
+
+        // Camera Presets matching exact angles of Still 1.png, Still 2.png, and Still 3 alpha.png
+        function setCameraView(preset) {
+            isAutoTurntable = false;
+            document.getElementById('btnAutoOrbit').textContent = '🔄 Putar 360°: OFF';
+            if (preset === 'still1' || preset === 'isometric') {
+                // Exact perspective angle from Still 1.png (Side-Front-Top Isometric)
+                targetCamTheta = -0.62;
+                targetCamPhi = 0.86;
+                targetCamRadius = 10.6;
+                targetLookAt.set(0, 0.1, 0);
+                updateHotspotCard('Sudut Render Still 1', 'Perspektif Isometrik Studio (Still 1.png)', 'Menampilkan profil memanjang 6 rak penjepit kemplang, kap miring belakang, laci arang ber-kenop oranye, dan blower keong.');
+            } else if (preset === 'still2' || preset === 'top') {
+                // Exact Top-Down Orthographic-like view from Still 2.png
+                targetCamTheta = 0.0;
+                targetCamPhi = 0.14;
+                targetCamRadius = 11.2;
+                targetLookAt.set(0, 0.0, -0.05);
+                updateHotspotCard('Sudut Render Still 2', 'Tampak Atas Simetris 1:1 (Still 2.png)', 'Memperlihatkan 2 kompartemen abu arang, 6 briket membara, 6 penjepit kawat kemplang, 2 blower keong + kabel, dan 2 kenop dimmer di belakang.');
+            } else if (preset === 'still3' || preset === 'rear') {
+                // Exact Close-Up Oblique angle from Still 3 alpha.png
+                targetCamTheta = -1.08;
+                targetCamPhi = 0.92;
+                targetCamRadius = 7.2;
+                targetLookAt.set(0.2, 0.22, -0.15);
+                updateHotspotCard('Sudut Render Still 3', 'Close-Up Penjepit Kawat, Bara, & Panel ECU (Still 3.png)', 'Menyorot detail lengkungan kawat penjepit kemplang, lubang masuk udara blower di dinding dalam, layar LCD biru, dan 2 kenop dimmer.');
+            } else if (preset === 'front') {
+                targetCamTheta = 0.0;
+                targetCamPhi = 1.15;
+                targetCamRadius = 10.2;
+                targetLookAt.set(0, -0.1, 0.35);
+            }
+        }
+
+        function focusHotspot(id) {
+            if (id === 1) {
+                setCameraView('still3');
+                updateHotspotCard('Hotspot #1 • Kontak Pangan', '6x Penjepit Kawat U-Loop SUS 304 (1 Keping/Rak)', 'Desain penjepit kawat ganda melengkung (hairpin U-loop) berbahan Stainless Steel SUS 304 (SNI 8753:2020) yang menjepit kemplang secara presisi.');
+            } else if (id === 2) {
+                if (!isHoodOpen) toggleServoHood();
+                setCameraView('still3');
+                triggerManualFlip();
+                updateHotspotCard('Hotspot #2 • Aktuator Mekanis', '6x Motor Servo MG996R (Metal Gear 11 kg·cm)', 'Menggerakkan 6 tangkai penjepit hingga 180° setiap 15 detik dengan jeda staggered 30 ms. Terlindung di balik kap miring berengsel.');
+            } else if (id === 3) {
+                setCameraView('still2');
+                updateHotspotCard('Hotspot #3 • Ruang Bakar & Sensor', 'Hamparan Abu, 6 Briket Arang, & Termokopel Tipe-K', 'Briket arang tersusun di atas abu di dalam 2 laci tarik. Suhu radiasi bara dipantau real-time oleh Termokopel Tipe-K dan modul MAX6675.');
+            } else if (id === 4) {
+                targetCamTheta = -2.35; targetCamPhi = 1.02; targetCamRadius = 8.2;
+                targetLookAt.set(0, 0.1, -0.5);
+                updateHotspotCard('Hotspot #4 • Panel Kendali Belakang', 'Layar LCD Recessed & 2x Knob Dimmer Blower', 'Layar LCD biru berada di tengah panel belakang diapit oleh 2 kenop putar hitam-metalik (PWM AC Dimmer) untuk menyetel laju blower.');
+            } else if (id === 5) {
+                setCameraView('still1');
+                updateHotspotCard('Hotspot #5 • Sirkulasi Udara', 'Dual Blower Keong Sentrifugal + Pipa Siku L', 'Dilengkapi 3 kisi intake hitam, kotak sakelar hijau, kabel daya ke ECU, dan pipa siku L yang masuk ke lubang bundar dinding ruang bakar.');
+            }
+        }
+
+        function updateHotspotCard(badge, title, desc) {
+            document.getElementById('hotspotBadge').textContent = badge;
+            document.getElementById('hotspotTitle').textContent = title;
+            document.getElementById('hotspotDesc').textContent = desc;
+        }
+
+        let lastAutoFlip = 0;
+
+        function animate3D(now) {
+            requestAnimationFrame(animate3D);
+
+            // Auto-flip every 8 seconds when enabled
+            if (autoFlipEnabled && now - lastAutoFlip > 8000) {
+                lastAutoFlip = now;
+                isFlipped180 = !isFlipped180;
+                flipStartTime = now;
+                const targetDeg = isFlipped180 ? 180 : 0;
+                document.getElementById('servoAngleSlider').value = targetDeg;
+                document.getElementById('servoSliderVal').textContent = targetDeg + '°';
+                rackPivotGroups.forEach(item => {
+                    item.targetAngle = isFlipped180 ? Math.PI : 0.22;
+                });
+                document.getElementById('lcdServoAngle').textContent = isFlipped180 ? 'POS 180° (15s)' : 'POS 0° (15s)';
+            }
+
+            if (isAutoTurntable && !isDragging) {
+                targetCamTheta += 0.0045;
+            }
+
+            // Smooth camera orbit interpolation
+            camTheta += (targetCamTheta - camTheta) * 0.08;
+            camPhi += (targetCamPhi - camPhi) * 0.08;
+            camRadius += (targetCamRadius - camRadius) * 0.08;
+            camLookAt.lerp(targetLookAt, 0.08);
+
+            camera.position.x = camLookAt.x + camRadius * Math.sin(camPhi) * Math.sin(camTheta);
+            camera.position.y = camLookAt.y + camRadius * Math.cos(camPhi);
+            camera.position.z = camLookAt.z + camRadius * Math.sin(camPhi) * Math.cos(camTheta);
+            camera.lookAt(camLookAt);
+
+            // Animate 6 hairpin wire clamps with staggered 30ms delay
+            rackPivotGroups.forEach(item => {
+                const elapsed = now - flipStartTime - (item.index * 85);
+                if (!autoFlipEnabled || elapsed > 0) {
+                    item.currentAngle += (item.targetAngle - item.currentAngle) * 0.1;
+                    item.group.rotation.z = item.currentAngle;
+                }
+            });
+
+            // Spin blower intake impellers when blower is active
+            if (!isHysteresisCutoff) {
+                blowerImpellers.forEach((wheel, idx) => {
+                    wheel.rotation.x += idx === 0 ? 0.18 : -0.18;
+                });
+            }
+
+            // Animate sliding charcoal drawers
+            if (drawerLeftGroup && drawerRightGroup) {
+                drawerLeftGroup.position.z += (targetDrawerZ - drawerLeftGroup.position.z) * 0.1;
+                drawerRightGroup.position.z += (targetDrawerZ - drawerRightGroup.position.z) * 0.1;
+            }
+
+            // Animate hinged slanted servo cover hood
+            if (servoHoodGroup) {
+                servoHoodGroup.rotation.x += (targetHoodAngle - servoHoodGroup.rotation.x) * 0.1;
+            }
+
+            // Animate charcoal ember glow pulsing
+            const pulse = 0.78 + Math.sin(now * 0.0045) * 0.22;
+            if (emberPointLight1 && emberPointLight2) {
+                const intensity = isHysteresisCutoff ? 1.0 : 2.6 * pulse;
+                emberPointLight1.intensity = intensity;
+                emberPointLight2.intensity = intensity;
+            }
+            emberMeshes.forEach((em, idx) => {
+                em.material.emissiveIntensity = isHysteresisCutoff
+                    ? 0.75
+                    : 1.8 + Math.sin(now * 0.005 + idx) * 0.55;
+            });
+
+            // Animate subtle rising heat sparks above charcoal briquettes
+            emberParticles.forEach(sp => {
+                sp.position.y += sp.userData.speed;
+                sp.position.x = sp.userData.baseX + Math.sin(now * 0.003 + sp.userData.phase) * 0.08;
+                sp.position.z = sp.userData.baseZ;
+                if (sp.position.y > 0.52) {
+                    sp.position.y = -0.15;
+                }
+            });
+
+            // Animate blower airflow particles entering from side air holes
+            airParticles.forEach(p => {
+                p.visible = !isHysteresisCutoff;
+                if (!isHysteresisCutoff) {
+                    p.userData.progress += 0.02;
+                    if (p.userData.progress > 1) p.userData.progress = 0;
+                    const t = p.userData.progress;
+                    const side = p.userData.side;
+                    p.position.set(
+                        side * (3.05 - t * 2.4),
+                        -0.15 + Math.sin(t * Math.PI) * 0.25,
+                        -0.22 + t * 0.45
+                    );
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function () {
+            renderSopSteps('all');
+            updateCalculator();
+            init3DRoaster();
+            requestAnimationFrame(animate3D);
+        };
+    </script>
+</body>
+
+</html>

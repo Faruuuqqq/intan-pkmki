@@ -1,0 +1,143 @@
+=========================================
+PRESENTASI PKM-KI: INTAN (Inovasi Termal Adaptif Nusantara)
+=========================================
+
+TIM PKM - KI UNIVERSITAS PADJADJARAN
+Dosen Pendamping: Andri Yanto, S.Sos., M.Ikom.
+Anggota Tim:
+1. Iwan Ridwan Ramdani
+2. M. Rafi Aulia Amrullah
+3. Irfan Fransisco
+4. Daryl Yudhopatria A.
+5. Achmad Faruq M.
+
+Tema PKM 2026: "Kemandirian Pangan, Energi dan Air"
+Judul: Transformasi Produksi Kemplang Tunu Melalui Smart Rotary Roaster Berbasis Mikrokontroler: Solusi Peningkatan Kapasitas dan Standarisasi Mutu Produk Lokal Sumatera.
+
+-----------------------------------------
+1. LATAR BELAKANG
+-----------------------------------------
+- Kemplang Tunu adalah kerupuk berbahan ikan, tepung tapioka, dan bumbu rempah yang merupakan kuliner khas Sumatera Selatan (Santoso et al. 2021).
+- Produk lokal ini telah menjadi bagian dari warisan kuliner masyarakat (Isnaini et al., 2020).
+- Proses pemanggangan memakai bara api menghasilkan cita rasa khas yang tak dimiliki metode lain (Ismail et al., 2022).
+- Permasalahan saat ini: Pembakaran masih memakai metode konvensional sehingga hasil produk tidak optimal.
+- Kendala konvensional: 
+  * Hanya menghasilkan 80 keping/jam.
+  * Suhu termal tidak stabil.
+  * Pengawasan harus intensif.
+  * Kematangan kurang merata.
+- Solusi: Dibutuhkan pemanggang efektif untuk peningkatan kapasitas produksi, efisiensi tenaga kerja, stabilitas termal, dan kematangan merata.
+
+-----------------------------------------
+2. TAHAP PELAKSANAAN
+-----------------------------------------
+1. Penemuan Ide Produk Inovatif
+2. Perencanaan dan Perancangan Teknis
+3. Pembuatan Manufaktur Perangkat
+4. Kalibrasi dan Uji Parsial Sub-sistem
+5. Analisis Data dan Evaluasi Mutu
+6. Uji Keandalan Skala Penuh
+7. Laporan dan Publikasi
+
+-----------------------------------------
+3. KOMPONEN DAN SPESIFIKASI ALAT (INTAN)
+-----------------------------------------
+Bahan Penyusun:
+- Plat Stainless Steel SUS 304 (tahan korosi, higienis, food grade).
+- Pipa Stainless Steel SUS 304.
+- Plat Alumunium (sebagai casing pelindung, ringan, dan tahan korosi).
+
+Komponen Alat:
+- Penjepit Kemplang
+- Motor Servo (untuk sistem pembalikan)
+- Layar LCD 16x2
+- Blower
+- Rak Bahan Bakar
+- Termokopel & Modul Relay
+
+Dimensi Alat:
+- Panjang total: 124 cm (termasuk blower)
+- Panjang ruang bakar: 100 cm
+- Lebar: 30 cm
+- Tinggi: 20 cm
+
+Spesifikasi Teknis:
+- Kapasitas: 420 Keping/Jam
+- Tegangan: 220V AC / 5V DC
+- Suhu: 550 - 600 °C
+- Berat Alat: 25 Kg
+- Daya Alat: 150 - 200 Watt
+- Waktu Operasi: 4 - 5 Jam
+
+-----------------------------------------
+4. KEUNGGULAN & PERBANDINGAN ALAT
+-----------------------------------------
+Keunggulan INTAN:
+- Sistem pembalikan otomatis.
+- Distribusi panas merata.
+- Kendali suhu termal adaptif.
+- Peningkatan kapasitas produksi.
+- Material food grade & ergonomis.
+- Sistem pemantauan real-time.
+
+Perbandingan (Konvensional vs INTAN):
+- Kapasitas: ± 80 keping/jam -> ± 420 keping/jam
+- Tenaga Kerja: Intensif -> Lebih ringan
+- Kontrol Suhu: Tidak terukur pasti -> Memakai Sensor, Blower, LCD
+- Kematangan: Kurang merata -> Lebih merata
+
+-----------------------------------------
+5. PENGUJIAN ALAT
+-----------------------------------------
+Hasil Pengujian menggunakan Kemplang:
+1. Waktu 47 detik | Suhu 492,1 °C | Matang
+2. Waktu 45 detik | Suhu 512,20 °C | Matang
+3. Waktu 47 detik | Suhu 540,1 °C | Matang
+4. Waktu 46 detik | Suhu 612,4 °C | Matang
+5. Waktu 46 detik | Suhu 558,21 °C | Matang
+6. Waktu 48 detik | Suhu 571,3 °C | Matang
+
+-----------------------------------------
+6. PERAWATAN ALAT
+-----------------------------------------
+- Cleaning: Bersihkan rak penjepit dan ruang pemanggangan setelah alat dingin. Buang sisa arang dan residu. Hindari air pada komponen elektronik.
+- Checking: Periksa servo, mekanisme pembalik, thermocouple, LCD, dan blower sebelum digunakan. Cek kabel berkala.
+
+-----------------------------------------
+7. CAPAIAN LUARAN & LEGALITAS
+-----------------------------------------
+Capaian Luaran:
+- Dokumen Teknis Produk INTAN
+- Laporan Kemajuan & Laporan Akhir
+- Produk Skala Penuh 1:1
+- Sosial Media (Instagram, Facebook, TikTok, YouTube: @intan_pkmki)
+- Publikasi Media (Sripoku, Liputan Bandung, TVRI News, dll)
+
+Legalitas & Kesiapan:
+- Surat Pencatatan Ciptaan (Hak Cipta)
+- Pemberkasan Hak Paten
+- Pengukuran Tingkat Kesiapterapan Teknologi (TKT) Level 8
+- Memorandum of Understanding (MoU) dengan pihak D'Nara Rancaekek
+
+-----------------------------------------
+8. POTENSI KE DEPAN & DIVERSIFIKASI
+-----------------------------------------
+Potensi:
+1. Mendukung Transformasi & Kemandirian Pangan Lokal.
+2. Solusi Tepat Guna untuk Skala UMKM.
+3. Peluang Komersialisasi & Produksi Massal.
+Pemangku Kepentingan: Pengrajin, Komunitas/Masyarakat, Pemerintah, Industri, Universitas, Media, dan NGO.
+
+Diversifikasi Penggunaan Alat:
+Alat ini juga dapat digunakan untuk memanggang:
+- Sosis Bakar
+- Opak Bakar
+- Jagung Bakar
+
+-----------------------------------------
+KESIMPULAN
+-----------------------------------------
+Kini, INTAN memudahkan pengrajin memanggang kemplang dengan sistem pembalikan otomatis, membuat pekerjaan lebih ringan, dan kapasitas produksi yang jauh lebih banyak.
+
+"Local Creation, Modern Automation"
+=========================================

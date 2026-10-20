@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-industrial-black: #050505;
+  --color-industrial-950: #0a0a0a;
+  --color-industrial-900: #121212;
+  --color-industrial-800: #1a1a1a;
+  --color-industrial-700: #262626;
+  --color-industrial-600: #404040;
+  --color-industrial-metal: #8a8d91;
+  --color-accent-orange: #ff5500;
+  --color-accent-amber: #f59e0b;
+  --color-accent-blue: #0284c7;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #050505;
+}
+
+body {
+  background-color: #050505;
+  color: #ededed;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #ff5500;
+  color: #000000;
+}
+
+/* Subtle Technical Blueprint Grid */
+.bg-tech-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Industrial Panel Surface */
+.industrial-card {
+  background-color: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.industrial-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.industrial-panel {
+  background-color: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* LCD Screen - Authentic Character Display */
+.lcd-screen {
+  background: #001220;
+  border: 1px solid #002845;
+  box-shadow: inset 0 0 10px rgba(0, 160, 220, 0.2);
+  color: #38bdf8;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* Precision Hairline Dividers */
+.hairline-b {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hairline-t {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hairline-l {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hairline-r {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Range Slider - Hardware Style */
+input[type="range"] {
+  accent-color: #ff5500;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 2px;
+  background: #ff5500;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Tabular figures for telemetry & numbers */
+.tabular-numbers {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbar for horizontal swipeable tabs on mobile */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe touch target padding for mobile accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
