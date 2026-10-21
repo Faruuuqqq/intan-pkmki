@@ -1,272 +1,319 @@
 "use client";
 
-import React, { useState } from "react";
-import Intan3DViewer from "@/components/3d/Intan3DViewer";
-import { Cpu, Shield, FileText } from "lucide-react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+
+const Intan3DViewer = dynamic(() => import("@/components/3d/Intan3DViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[520px] items-center justify-center border border-paper/15 bg-stage-raised text-sm text-steel">
+      Memuat model 3D…
+    </div>
+  ),
+});
+
+const spesifikasi = [
+  { label: "Kapasitas nominal", value: "400–420 keping/jam", catatan: "6 rak, siklus 46,5 detik" },
+  { label: "Tegangan operasi", value: "220 V AC / 5 V DC", catatan: "Suplai 3 zona terisolasi" },
+  { label: "Histeresis termal", value: "550–600 °C", catatan: "Umpan balik termokopel tipe-K" },
+  { label: "Massa rangka", value: "25 kg", catatan: "4 roda caster" },
+  { label: "Daya listrik", value: "150–200 W", catatan: "Tidak termasuk panas arang" },
+  { label: "Durasi kontinu", value: "4–5 jam/batch", catatan: "Suhu kotak ECU < 48 °C" },
+];
+
+const material = [
+  {
+    nama: "Plat stainless SUS 304",
+    standar: "ASTM A240",
+    isi: "Bodi utama dan palung pembakaran. Food-grade, tahan korosi, dan aman dibersihkan setiap hari.",
+  },
+  {
+    nama: "Pipa dan kawat penjepit",
+    standar: "ASTM A312",
+    isi: "Poros torsi dari servo ke kemplang. Tahan panas 600 °C dan dapat dilepas untuk pencucian.",
+  },
+  {
+    nama: "Casing aluminium",
+    standar: "ASTM B209",
+    isi: "Panel luar yang ringan dan membantu meredam panas kotak kontrol ECU.",
+  },
+];
+
+const dimensiTab = (
+  <svg viewBox="0 0 600 280" className="h-auto w-full min-w-[560px]" role="img" aria-label="Skema dimensi INTAN 1240 x 300 x 300 milimeter">
+    <defs>
+      <pattern id="gridProduk" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#7C8589" strokeOpacity="0.18" strokeWidth="1" />
+      </pattern>
+    </defs>
+    <rect width="600" height="280" fill="url(#gridProduk)" />
+    <line x1="70" y1="42" x2="530" y2="42" stroke="#A63A0B" strokeWidth="1.5" />
+    <line x1="70" y1="30" x2="70" y2="62" stroke="#A63A0B" strokeWidth="1" strokeDasharray="3 3" />
+    <line x1="530" y1="30" x2="530" y2="62" stroke="#A63A0B" strokeWidth="1" strokeDasharray="3 3" />
+    <text x="300" y="30" fill="#1B1A17" fontSize="11" fontFamily="sans-serif" textAnchor="middle">1240 mm</text>
+
+    <rect x="100" y="92" width="400" height="112" fill="#D8D2C6" stroke="#1B1A17" strokeWidth="1.5" />
+    <line x1="100" y1="128" x2="500" y2="128" stroke="#7C8589" strokeWidth="1" strokeDasharray="5 4" />
+    <rect x="112" y="140" width="180" height="52" fill="none" stroke="#4F585C" strokeWidth="1" />
+    <rect x="308" y="140" width="180" height="52" fill="none" stroke="#4F585C" strokeWidth="1" />
+    <circle cx="202" cy="166" r="4" fill="#A63A0B" />
+    <circle cx="398" cy="166" r="4" fill="#A63A0B" />
+
+    <circle cx="128" cy="218" r="8" fill="none" stroke="#1B1A17" strokeWidth="1.5" />
+    <circle cx="472" cy="218" r="8" fill="none" stroke="#1B1A17" strokeWidth="1.5" />
+
+    <line x1="70" y1="92" x2="70" y2="204" stroke="#7C8589" strokeWidth="1" />
+    <text x="60" y="152" fill="#4F585C" fontSize="10" fontFamily="sans-serif" textAnchor="end">300 mm</text>
+    <line x1="100" y1="232" x2="500" y2="232" stroke="#7C8589" strokeWidth="1" />
+    <text x="300" y="250" fill="#4F585C" fontSize="10" fontFamily="sans-serif" textAnchor="middle">1000 mm palung · 2 × 200 mm laci</text>
+    <text x="300" y="270" fill="#7C8589" fontSize="9" fontFamily="sans-serif" textAnchor="middle">Skema dimensi, bukan gambar kerja</text>
+  </svg>
+);
+
+const wiringTab = (
+  <svg viewBox="0 0 600 280" className="h-auto w-full min-w-[560px]" role="img" aria-label="Skema kabel INTAN: Arduino Nano, sensor, relay, servo, LCD, dan PSU">
+    <rect width="600" height="280" fill="none" />
+    <rect x="240" y="106" width="120" height="58" fill="#E4DFD5" stroke="#1B1A17" strokeWidth="1.5" />
+    <text x="300" y="130" fill="#1B1A17" fontSize="11" fontFamily="sans-serif" textAnchor="middle" fontWeight="600">Arduino Nano</text>
+    <text x="300" y="146" fill="#4F585C" fontSize="9" fontFamily="sans-serif" textAnchor="middle">ATmega328P · millis()</text>
+
+    <rect x="30" y="24" width="180" height="46" fill="none" stroke="#4F585C" strokeWidth="1.2" />
+    <text x="120" y="43" fill="#1B1A17" fontSize="10" fontFamily="sans-serif" textAnchor="middle">6 × servo MG996R</text>
+    <text x="120" y="58" fill="#7C8589" fontSize="9" fontFamily="sans-serif" textAnchor="middle">jeda 30 ms</text>
+    <path d="M 210 47 L 300 47 L 300 106" fill="none" stroke="#4F585C" strokeWidth="1.2" />
+
+    <rect x="410" y="24" width="160" height="46" fill="none" stroke="#4F585C" strokeWidth="1.2" />
+    <text x="490" y="43" fill="#1B1A17" fontSize="10" fontFamily="sans-serif" textAnchor="middle">MAX6675 + tipe-K</text>
+    <text x="490" y="58" fill="#7C8589" fontSize="9" fontFamily="sans-serif" textAnchor="middle">SPI · suhu bara</text>
+    <path d="M 410 47 L 360 47 L 360 106" fill="none" stroke="#4F585C" strokeWidth="1.2" />
+
+    <rect x="30" y="190" width="150" height="46" fill="none" stroke="#4F585C" strokeWidth="1.2" />
+    <text x="105" y="209" fill="#1B1A17" fontSize="10" fontFamily="sans-serif" textAnchor="middle">LCD I2C 20×4</text>
+    <text x="105" y="224" fill="#7C8589" fontSize="9" fontFamily="sans-serif" textAnchor="middle">telemetri</text>
+    <path d="M 240 150 L 105 150 L 105 190" fill="none" stroke="#4F585C" strokeWidth="1.2" />
+
+    <rect x="220" y="198" width="160" height="46" fill="none" stroke="#A63A0B" strokeWidth="1.4" />
+    <text x="300" y="217" fill="#1B1A17" fontSize="10" fontFamily="sans-serif" textAnchor="middle">Relay 2 kanal</text>
+    <text x="300" y="232" fill="#A63A0B" fontSize="9" fontFamily="sans-serif" textAnchor="middle">blower kiri / kanan</text>
+    <path d="M 300 164 L 300 198" fill="none" stroke="#A63A0B" strokeWidth="1.4" />
+
+    <rect x="420" y="190" width="150" height="46" fill="none" stroke="#A63A0B" strokeWidth="1.4" />
+    <text x="495" y="209" fill="#1B1A17" fontSize="10" fontFamily="sans-serif" textAnchor="middle">2 × blower</text>
+    <text x="495" y="224" fill="#A63A0B" fontSize="9" fontFamily="sans-serif" textAnchor="middle">PWM AC dimmer</text>
+    <path d="M 380 221 L 420 221" fill="none" stroke="#A63A0B" strokeWidth="1.4" />
+
+    <path d="M 300 244 L 300 260" fill="none" stroke="#7C8589" strokeWidth="1" strokeDasharray="3 3" />
+    <text x="300" y="274" fill="#7C8589" fontSize="9" fontFamily="sans-serif" textAnchor="middle">Suplai logika 5 V dan daya AC 220 V dipisah pada tiga zona.</text>
+  </svg>
+);
 
 export default function ProdukPage() {
   const [activeTab, setActiveTab] = useState<"dimensi" | "wiring">("dimensi");
 
-  const techSpecs = [
-    { label: "NOMINAL CAPACITY", value: "400–420", unit: "PCS / HOUR", note: "6 racks / 46.5s cycle" },
-    { label: "OPERATING VOLTAGE", value: "220V AC / 5V DC", unit: "DUAL VOLTAGE", note: "Isolated 3-Zone Supply" },
-    { label: "THERMAL HYSTERESIS", value: "550°C – 600°C", unit: "SETPOINT", note: "Thermocouple Feedback" },
-    { label: "CHASSIS MASS", value: "25.0", unit: "KG (PORTABLE)", note: "4 Caster Wheels" },
-    { label: "POWER DRAW", value: "150–200", unit: "WATTS ELECTRICAL", note: "Excludes Charcoal Heat" },
-    { label: "CONTINUOUS RUNTIME", value: "4–5", unit: "HOURS / BATCH", note: "ECU Thermal < 48°C" },
-  ];
-
   return (
-    <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 space-y-12 bg-[#050505]">
-      {/* Header */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-[11px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-          <span>SPECIFICATION // SECTION 02</span>
-          <span className="text-neutral-600">/</span>
-          <span className="text-neutral-400">CAD MODEL VERIFICATION</span>
+    <div className="bg-stage text-paper">
+      <section className="border-b border-paper/10">
+        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
+          <p className="text-sm text-steel">Produk</p>
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Mesin yang bisa dibongkar, bukan kotak hitam.
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-paper/65">
+            Model digital twin skala 1:1 dari dokumen CAD 1240 × 300 × 300 mm.
+            Putar, buka laci, dan lihat bagaimana enam servo bekerja di atas bara.
+          </p>
         </div>
-        <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-          Anatomi 3D, Material Pangan &amp; Blueprint Dimensi
-        </h1>
-        <p className="text-sm text-neutral-400 max-w-2xl font-sans leading-relaxed">
-          Model digital twin 3D skala 1:1 direkonstruksi presisi dari dokumen CAD (1240 × 300 × 300 mm). Spesifikasi material baja tahan karat mengacu acuan mutu SNI 8753:2020 dan ASTM A240.
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-14">
+        <Intan3DViewer compact={false} />
+        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-steel">
+          Model 3D disusun dari dokumen teknis. Render dan foto referensi ada di
+          bagian bawah halaman; keduanya bukan pengganti gambar kerja.
         </p>
-      </div>
+      </section>
 
-      {/* 3D Hardware Viewport */}
-      <Intan3DViewer compact={false} />
-
-      {/* Engineering Datasheet Grid */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-xs font-mono font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-[#ff5500]" /> TECHNICAL DATASHEET // DOKUMEN TEKNIS BAB II
-          </div>
-          <span className="text-[11px] font-mono text-neutral-500">REV 2.0 / 2026</span>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {techSpecs.map((spec, i) => (
-            <div key={i} className="industrial-card rounded p-4 space-y-1">
-              <div className="text-[10px] font-mono text-neutral-500 tracking-wider uppercase">{spec.label}</div>
-              <div className="font-display font-bold text-white text-base tracking-tight tabular-numbers">
-                {spec.value}
-              </div>
-              <div className="text-[10px] font-mono text-[#ff5500] font-bold">{spec.unit}</div>
-              <div className="text-[10px] text-neutral-400 font-sans pt-1 border-t border-white/[0.04]">
-                {spec.note}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Materials & Blueprint Tabs */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Material Compliance Card */}
-        <div className="lg:col-span-5 industrial-panel rounded-lg p-6 space-y-5">
-          <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-            <div className="font-display font-bold text-base text-white flex items-center gap-2">
-              <Shield className="w-4 h-4 text-emerald-400" /> Standar Mutu Material
-            </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-              SNI 8753:2020 COMPLIANT
-            </span>
-          </div>
-
-          <div className="space-y-4 text-xs font-sans text-neutral-300">
-            <div className="space-y-1">
-              <div className="flex justify-between font-mono font-bold text-white text-xs">
-                <span>01. Plat Stainless Steel SUS 304</span>
-                <span className="text-neutral-500">ASTM A240</span>
-              </div>
-              <p className="text-neutral-400 leading-relaxed">
-                Struktur bodi utama dan palung pembakaran. Bebas korosi, higienis untuk kontak pangan (*food-grade*), dan tahan pembersihan harian.
+      <div className="surface-paper bg-paper text-graphite">
+        <section className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="text-sm font-semibold text-ember-dark">Spesifikasi</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Angka yang dipakai di lapangan.
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-steel-text">
+                Bukan angka maksimum di brosur. Ini rentang yang diukur pada
+                prototipe dan uji operasional.
               </p>
             </div>
-
-            <div className="space-y-1 border-t border-white/[0.06] pt-3">
-              <div className="flex justify-between font-mono font-bold text-white text-xs">
-                <span>02. Pipa &amp; Kawat Penjepit SUS 304</span>
-                <span className="text-neutral-500">ASTM A312</span>
-              </div>
-              <p className="text-neutral-400 leading-relaxed">
-                Poros transmisi torsi dari motor servo ke kemplang. Tahan radiasi panas 600°C dan bersifat *detachable* (dapat dilepas untuk pencucian).
-              </p>
-            </div>
-
-            <div className="space-y-1 border-t border-white/[0.06] pt-3">
-              <div className="flex justify-between font-mono font-bold text-white text-xs">
-                <span>03. Plat Aluminium Casing Luar</span>
-                <span className="text-neutral-500">ASTM B209</span>
-              </div>
-              <p className="text-neutral-400 leading-relaxed">
-                Panel penutup luar yang ringan dan memiliki konduktivitas termal stabil untuk meredam pemanasan kotak kontrol ECU.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Blueprint & Wiring Vector Tab */}
-        <div className="lg:col-span-7 industrial-panel rounded-lg p-4 sm:p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
-            <div className="font-display font-bold text-base text-white flex items-center gap-2">
-              <FileText className="w-4 h-4 text-sky-400 shrink-0" />
-              <span>Skema Rekayasa Teknis</span>
-            </div>
-            <div className="flex gap-1.5 font-mono text-xs w-full sm:w-auto">
-              <button
-                onClick={() => setActiveTab("dimensi")}
-                className={`flex-1 sm:flex-none px-3 py-1.5 rounded text-[10px] sm:text-[11px] font-bold transition text-center ${
-                  activeTab === "dimensi" ? "bg-white text-black" : "bg-white/[0.05] text-neutral-400 hover:text-white"
-                }`}
-              >
-                DIMENSI (1240 MM)
-              </button>
-              <button
-                onClick={() => setActiveTab("wiring")}
-                className={`flex-1 sm:flex-none px-3 py-1.5 rounded text-[10px] sm:text-[11px] font-bold transition text-center ${
-                  activeTab === "wiring" ? "bg-white text-black" : "bg-white/[0.05] text-neutral-400 hover:text-white"
-                }`}
-              >
-                WIRING SCHEMATIC
-              </button>
-            </div>
-          </div>
-
-          {/* SVG Canvas */}
-          {activeTab === "dimensi" ? (
-            <div className="bg-[#050505] rounded p-4 border border-white/[0.06]">
-              <svg viewBox="0 0 520 220" className="w-full h-auto">
-                <defs>
-                  <pattern id="bpGridProd" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
-                  </pattern>
-                </defs>
-                <rect width="520" height="220" fill="url(#bpGridProd)" rx="4" />
-                
-                {/* 124 cm Dimension line */}
-                <line x1="40" y1="25" x2="480" y2="25" stroke="#38bdf8" strokeWidth="1.5" />
-                <line x1="40" y1="18" x2="40" y2="55" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="480" y1="18" x2="480" y2="55" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3,3" />
-                <rect x="215" y="13" width="90" height="20" fill="#000000" rx="2" />
-                <text x="260" y="27" fill="#38bdf8" fontSize="10" fontFamily="monospace" fontWeight="bold" textAnchor="middle">
-                  TOTAL: 1240 MM
-                </text>
-
-                {/* Sub Dimensions */}
-                <line x1="90" y1="48" x2="430" y2="48" stroke="#ff5500" strokeWidth="1.2" />
-                <text x="65" y="45" fill="#71717a" fontSize="9" fontFamily="monospace" textAnchor="middle">120MM</text>
-                <text x="260" y="45" fill="#ff5500" fontSize="10" fontFamily="monospace" fontWeight="bold" textAnchor="middle">
-                  TUNGKU UTAMA: 1000 MM
-                </text>
-                <text x="455" y="45" fill="#71717a" fontSize="9" fontFamily="monospace" textAnchor="middle">120MM</text>
-
-                {/* Blowers */}
-                <circle cx="65" cy="110" r="24" fill="#18181b" stroke="#71717a" strokeWidth="1.5" />
-                <circle cx="65" cy="110" r="10" fill="#09090b" stroke="#38bdf8" strokeWidth="1" />
-                <rect x="65" y="124" width="25" height="12" fill="#27272a" stroke="#71717a" />
-
-                <circle cx="455" cy="110" r="24" fill="#18181b" stroke="#71717a" strokeWidth="1.5" />
-                <circle cx="455" cy="110" r="10" fill="#09090b" stroke="#38bdf8" strokeWidth="1" />
-                <rect x="430" y="124" width="25" height="12" fill="#27272a" stroke="#71717a" />
-
-                {/* Main Body */}
-                <rect x="90" y="65" width="340" height="95" fill="#18181b" stroke="#52525b" strokeWidth="1.5" />
-                <line x1="90" y1="98" x2="430" y2="98" stroke="#ff5500" strokeWidth="1" strokeDasharray="4,4" />
-
-                {/* Drawers */}
-                <rect x="96" y="104" width="160" height="50" fill="#09090b" stroke="#3f3f46" strokeWidth="1" />
-                <circle cx="176" cy="129" r="5" fill="#ff5500" />
-                <rect x="264" y="104" width="160" height="50" fill="#09090b" stroke="#3f3f46" strokeWidth="1" />
-                <circle cx="344" cy="129" r="5" fill="#ff5500" />
-
-                {/* Wheels */}
-                <circle cx="110" cy="172" r="7" fill="#ef4444" stroke="#ffffff" strokeWidth="1" />
-                <circle cx="410" cy="172" r="7" fill="#ef4444" stroke="#ffffff" strokeWidth="1" />
-
-                <text x="498" y="88" fill="#e4e4e7" fontSize="8" fontFamily="monospace">100MM</text>
-                <text x="498" y="132" fill="#38bdf8" fontSize="8" fontFamily="monospace">200MM</text>
-                <text x="498" y="175" fill="#ef4444" fontSize="8" fontFamily="monospace">100MM</text>
-                <text x="260" y="204" fill="#71717a" fontSize="9" fontFamily="monospace" textAnchor="middle">
-                  BLUEPRINT CAD INTAN-2026-REV2
-                </text>
-              </svg>
-            </div>
-          ) : (
-            <div className="bg-[#050505] rounded p-4 border border-white/[0.06]">
-              <svg viewBox="0 0 520 220" className="w-full h-auto">
-                <rect width="520" height="220" fill="#09090b" rx="4" />
-                <rect x="195" y="85" width="110" height="50" rx="4" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-                <text x="250" y="107" fill="#ffffff" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
-                  ARDUINO NANO
-                </text>
-                <text x="250" y="122" fill="#94a3b8" fontSize="8" fontFamily="monospace" textAnchor="middle">
-                  ATmega328P (millis)
-                </text>
-
-                {/* 6 Servos */}
-                <g transform="translate(30, 15)">
-                  {[1, 2, 3, 4, 5, 6].map((num, i) => (
-                    <g key={num} transform={`translate(${i * 55}, 0)`}>
-                      <rect width="48" height="28" rx="2" fill="#18181b" stroke="#eab308" strokeWidth="1" />
-                      <text x="24" y="18" fill="#eab308" fontSize="8" fontFamily="monospace" textAnchor="middle">
-                        SERVO {num}
-                      </text>
-                    </g>
+            <div className="lg:col-span-8">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-graphite/25 text-xs text-steel-text">
+                    <th scope="col" className="py-3 pr-4 font-medium">Parameter</th>
+                    <th scope="col" className="py-3 pr-4 font-medium">Nilai</th>
+                    <th scope="col" className="hidden py-3 font-medium sm:table-cell">Catatan</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-graphite/10">
+                  {spesifikasi.map((item) => (
+                    <tr key={item.label}>
+                      <th scope="row" className="py-3.5 pr-4 text-left font-normal text-steel-text">{item.label}</th>
+                      <td className="py-3.5 pr-4 font-semibold tabular-numbers">{item.value}</td>
+                      <td className="hidden py-3.5 text-steel-text sm:table-cell">{item.catatan}</td>
+                    </tr>
                   ))}
-                </g>
-                <path d="M 250 85 L 250 60 L 55 60 L 55 43 M 110 60 L 110 43 M 165 60 L 165 43 M 220 60 L 220 43 M 275 60 L 275 43 M 330 60 L 330 43" stroke="#eab308" strokeWidth="1.2" fill="none" />
-
-                {/* MAX6675 */}
-                <rect x="380" y="25" width="115" height="42" rx="4" fill="#022c22" stroke="#10b981" strokeWidth="1.2" />
-                <text x="437" y="43" fill="#a7f3d0" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
-                  MAX6675 + TIPE-K
-                </text>
-                <text x="437" y="57" fill="#6ee7b7" fontSize="8" fontFamily="monospace" textAnchor="middle">
-                  SPI Bus (Suhu Bara)
-                </text>
-                <path d="M 305 100 L 350 100 L 350 46 L 380 46" stroke="#10b981" strokeWidth="1.2" fill="none" />
-
-                {/* LCD */}
-                <rect x="30" y="150" width="125" height="45" rx="4" fill="#172554" stroke="#60a5fa" strokeWidth="1.2" />
-                <text x="92" y="170" fill="#eff6ff" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
-                  LCD I2C DISPLAY
-                </text>
-                <text x="92" y="184" fill="#93c5fd" fontSize="8" fontFamily="monospace" textAnchor="middle">
-                  SDA/SCL (Telemetry)
-                </text>
-                <path d="M 195 115 L 92 115 L 92 150" stroke="#60a5fa" strokeWidth="1.2" fill="none" />
-
-                {/* Relay */}
-                <rect x="195" y="155" width="120" height="42" rx="4" fill="#431407" stroke="#fb923c" strokeWidth="1.2" />
-                <text x="255" y="173" fill="#ffedd5" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
-                  RELAY 2-CH OPTO
-                </text>
-                <text x="255" y="187" fill="#fdba74" fontSize="8" fontFamily="monospace" textAnchor="middle">
-                  2x Blower + Dimmer
-                </text>
-                <line x1="250" y1="135" x2="250" y2="155" stroke="#fb923c" strokeWidth="1.2" />
-
-                {/* PSU */}
-                <rect x="375" y="145" width="120" height="52" rx="4" fill="#1e293b" stroke="#f43f5e" strokeWidth="1.2" />
-                <text x="435" y="167" fill="#ffe4e6" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
-                  PSU SWITCHING 5V
-                </text>
-                <text x="435" y="182" fill="#fda4af" fontSize="8" fontFamily="monospace" textAnchor="middle">
-                  Isolasi 3-Zona Daya
-                </text>
-                <path d="M 375 170 L 315 170 M 375 120 L 305 120" stroke="#f43f5e" strokeWidth="1.2" fill="none" />
-              </svg>
+                </tbody>
+              </table>
             </div>
-          )}
-
-          <div className="text-[11px] font-mono text-neutral-400">
-            CONNECTIVITY // Modular plug-and-play wiring harnesses prevent soldering requirements during maintenance.
           </div>
-        </div>
+        </section>
 
+        <section className="border-t border-graphite/10">
+          <div className="mx-auto grid max-w-[1200px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <p className="text-sm font-semibold text-ember-dark">Material</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Stainless yang menyentuh makanan.
+              </h2>
+              <div className="mt-8 divide-y divide-graphite/15 border-t border-graphite/15">
+                {material.map((item) => (
+                  <div key={item.nama} className="grid gap-2 py-5 sm:grid-cols-[1fr_auto] sm:gap-6">
+                    <div>
+                      <h3 className="font-display text-lg font-semibold tracking-tight">{item.nama}</h3>
+                      <p className="mt-1 max-w-xl text-sm leading-relaxed text-steel-text">{item.isi}</p>
+                    </div>
+                    <p className="text-xs text-steel-text sm:text-right">{item.standar}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <figure className="lg:col-span-5">
+              <Image
+                src="/alat/intan-depan.webp"
+                alt="Render tampak depan INTAN dengan enam kemplang dan bara di dalam palung"
+                width={1536}
+                height={995}
+                sizes="(min-width: 1024px) 38vw, 100vw"
+                className="h-auto w-full"
+              />
+              <figcaption className="mt-2 text-xs leading-relaxed text-steel-text">
+                Render konsep tampak depan. Angka pada layar adalah ilustrasi,
+                bukan pembacaan uji.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section className="border-t border-graphite/10">
+          <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-sm font-semibold text-ember-dark">Gambar teknis</p>
+                <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                  Dimensi dan jalur daya.
+                </h2>
+              </div>
+              <div className="flex gap-2" role="tablist" aria-label="Pilih gambar teknis">
+                <button
+                  type="button"
+                  id="tab-dimensi"
+                  role="tab"
+                  aria-selected={activeTab === "dimensi"}
+                  aria-controls="panel-teknis"
+                  onClick={() => setActiveTab("dimensi")}
+                  className={`min-h-11 border px-3 py-2 text-sm font-medium transition ${
+                    activeTab === "dimensi"
+                      ? "border-graphite bg-graphite text-paper"
+                      : "border-graphite/25 text-steel-text hover:border-graphite/50"
+                  }`}
+                >
+                  Dimensi
+                </button>
+                <button
+                  type="button"
+                  id="tab-kabel"
+                  role="tab"
+                  aria-selected={activeTab === "wiring"}
+                  aria-controls="panel-teknis"
+                  onClick={() => setActiveTab("wiring")}
+                  className={`min-h-11 border px-3 py-2 text-sm font-medium transition ${
+                    activeTab === "wiring"
+                      ? "border-graphite bg-graphite text-paper"
+                      : "border-graphite/25 text-steel-text hover:border-graphite/50"
+                  }`}
+                >
+                  Kabel
+                </button>
+              </div>
+            </div>
+            <div
+              id="panel-teknis"
+              className="mt-8 overflow-x-auto border border-graphite/15 bg-paper-raised p-3 sm:p-6"
+              role="tabpanel"
+              tabIndex={0}
+              aria-labelledby={activeTab === "dimensi" ? "tab-dimensi" : "tab-kabel"}
+            >
+              {activeTab === "dimensi" ? dimensiTab : wiringTab}
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-steel-text">
+              Skema disederhanakan untuk web. Dokumen kerja lengkap tersedia
+              dalam dokumen teknis tim.<span className="sm:hidden"> Geser diagram ke samping.</span>
+            </p>
+          </div>
+        </section>
+
+        <section className="border-t border-graphite/10">
+          <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+            <p className="text-sm font-semibold text-ember-dark">Referensi visual</p>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Mesin yang sama, dari dua sudut.
+            </h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+              <figure>
+                <Image
+                  src="/alat/intan-tiga-perempat.webp"
+                  alt="Render tiga perempat INTAN dengan bara dan enam kemplang"
+                  width={1610}
+                  height={907}
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  className="h-auto w-full"
+                />
+                <figcaption className="mt-2 text-xs text-steel-text">Tampak tiga perempat · render konsep.</figcaption>
+              </figure>
+              <figure>
+                <Image
+                  src="/alat/intan-atas.webp"
+                  alt="Render tampak atas INTAN dengan enam rak penjepit"
+                  width={1500}
+                  height={582}
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  className="h-auto w-full"
+                />
+                <figcaption className="mt-2 text-xs text-steel-text">Tampak atas · enam rak U-loop.</figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-graphite/10">
+          <div className="mx-auto flex max-w-[1200px] flex-col gap-4 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <p className="max-w-xl text-base text-steel-text">
+              Butuh model untuk presentasi, replikasi, atau uji material?
+              Tim bisa menyiapkan dokumen dan demonstrasi.
+            </p>
+            <Link
+              href="/kontak"
+              className="inline-flex min-h-11 items-center justify-center gap-2 bg-graphite px-5 py-3 text-sm font-semibold text-paper transition-colors hover:bg-graphite/85"
+            >
+              Hubungi tim
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   );

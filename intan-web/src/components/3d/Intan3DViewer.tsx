@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { Camera, RotateCw, AlertTriangle, Layers, Sliders, Sun, Moon, CheckCircle2 } from "lucide-react";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { Camera, RotateCw, AlertTriangle, Layers, Sliders } from "lucide-react";
 
 interface Intan3DViewerProps {
   compact?: boolean;
@@ -14,8 +15,7 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Viewport & Lighting States
-  const [studioBg, setStudioBg] = useState<"light" | "dark">("light");
-  const [autoTurntable, setAutoTurntable] = useState<boolean>(!compact);
+  const [autoTurntable, setAutoTurntable] = useState<boolean>(false);
   const [currentCameraPreset, setCurrentCameraPreset] = useState<string>("still1");
 
   // Mechanical States
@@ -26,16 +26,15 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
   const [isCutoffActive, setIsCutoffActive] = useState<boolean>(false);
 
   // LCD & Telemetry States
-  const [tempValue, setTempValue] = useState<string>("571.3 °C");
-  const [hysteresisTag, setHysteresisTag] = useState<string>("IDEAL [550°–600°C]");
-  const [blowerState, setBlowerState] = useState<string>("ACTIVE (PWM 85%)");
-  const [servoState, setServoState] = useState<string>("POS 0° (CYCLE 15s)");
+  const [tempValue, setTempValue] = useState<string>("571,3 °C");
+  const [hysteresisTag, setHysteresisTag] = useState<string>("Ideal (550–600 °C)");
+  const [blowerState, setBlowerState] = useState<string>("Aktif (PWM 85%)");
+  const [servoState, setServoState] = useState<string>("Posisi 0° (siklus 15 dtk)");
 
   // Technical HUD Card
-  const [hotspotCode, setHotspotCode] = useState<string>("DWG-STILL-01");
-  const [hotspotTitle, setHotspotTitle] = useState<string>("INTAN Smart Rotary Roaster (124 × 30 × 30 cm)");
+  const [hotspotTitle, setHotspotTitle] = useState<string>("INTAN — pemanggang kemplang tunu");
   const [hotspotDesc, setHotspotDesc] = useState<string>(
-    "Palung utama SUS 304 (100 cm), dual blower keong sentrifugal (2 × 12 cm), 6 rak penjepit U-loop, dan kompartemen servo MG996R."
+    "Palung SUS 304, dua blower keong, enam rak U-loop, dan kompartemen servo."
   );
 
   // References for Three.js engine
@@ -80,9 +79,10 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     autoFlipActive: false,
     lastAutoFlip: 0,
     isHysteresisCutoff: false,
-    autoTurntable: !compact,
+    autoTurntable: false,
     reqId: 0,
     textures: [] as THREE.Texture[],
+    envTexture: null as THREE.Texture | null,
   });
 
   useEffect(() => {
@@ -95,6 +95,9 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
 
     const width = container.clientWidth || 800;
     const height = container.clientHeight || 500;
+    const fitScale = width / height < 1.2 ? 1.55 : width / height < 1.8 ? 1.25 : 1;
+    eng.camRadius = 10.6 * fitScale;
+    eng.targetCamRadius = eng.camRadius;
 
     eng.camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
 
@@ -107,9 +110,17 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     eng.renderer.setSize(width, height);
     eng.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     eng.renderer.shadowMap.enabled = true;
-    eng.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    eng.renderer.shadowMap.type = THREE.PCFShadowMap;
     eng.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    eng.renderer.toneMappingExposure = 1.15;
+    eng.renderer.toneMappingExposure = 0.78;
+
+    // A neutral studio environment gives the brushed stainless something to reflect.
+    const room = new RoomEnvironment();
+    const pmrem = new THREE.PMREMGenerator(eng.renderer);
+    eng.envTexture = pmrem.fromScene(room, 0.04).texture;
+    eng.scene.environment = eng.envTexture;
+    room.dispose();
+    pmrem.dispose();
 
     // -------------------------------------------------------------
     // 1. PROCEDURAL TEXTURES (BRUSHED SUS 304, ASH BED, KEMPLANG)
@@ -181,10 +192,10 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     // -------------------------------------------------------------
     // 2. STUDIO LIGHTING SETUP (MATCHING STILL 1, 2, 3)
     // -------------------------------------------------------------
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     eng.scene.add(ambientLight);
 
-    const mainStudioLight = new THREE.DirectionalLight(0xfffaf0, 1.35);
+    const mainStudioLight = new THREE.DirectionalLight(0xfffaf0, 1.05);
     mainStudioLight.position.set(7, 13, 8);
     mainStudioLight.castShadow = true;
     mainStudioLight.shadow.mapSize.width = 2048;
@@ -199,13 +210,17 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     mainStudioLight.shadow.bias = -0.0005;
     eng.scene.add(mainStudioLight);
 
-    eng.studioWarmLight = new THREE.DirectionalLight(0xffbfa3, 0.75);
+    eng.studioWarmLight = new THREE.DirectionalLight(0xffbfa3, 0.5);
     eng.studioWarmLight.position.set(-6, 8, -7);
     eng.scene.add(eng.studioWarmLight);
 
-    const rimLight = new THREE.DirectionalLight(0xe0f2fe, 0.55);
+    const rimLight = new THREE.DirectionalLight(0xe0f2fe, 0.35);
     rimLight.position.set(0, 5, -10);
     eng.scene.add(rimLight);
+
+    const forgeGlow = new THREE.PointLight(0xff6a2a, 0.55, 7, 2);
+    forgeGlow.position.set(-1.5, 1.4, 3.2);
+    eng.scene.add(forgeGlow);
 
     // Internal Glowing Charcoal Point Lights
     eng.emberPointLight1 = new THREE.PointLight(0xff3b00, 2.6, 4.8);
@@ -218,7 +233,7 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
 
     // Shadow-Catching Floor Plane
     const floorGeo = new THREE.PlaneGeometry(36, 36);
-    const floorMat = new THREE.ShadowMaterial({ opacity: 0.22 });
+    const floorMat = new THREE.ShadowMaterial({ opacity: 0.32 });
     eng.studioFloorMesh = new THREE.Mesh(floorGeo, floorMat);
     eng.studioFloorMesh.rotation.x = -Math.PI / 2;
     eng.studioFloorMesh.position.y = -1.24;
@@ -229,39 +244,44 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     // 3. PBR MATERIALS (SUS 304, HOOD, CHROME, ASH, BRIQUETTES)
     // -------------------------------------------------------------
     const sus304Mat = new THREE.MeshStandardMaterial({
-      color: 0xd8dce0,
+      color: 0x8b9198,
       map: brushedMetalTex,
       bumpMap: brushedMetalTex,
       bumpScale: 0.004,
-      metalness: 0.82,
-      roughness: 0.24,
+      metalness: 0.78,
+      roughness: 0.34,
+      envMapIntensity: 0.65,
     });
 
     const hoodBrushedMat = new THREE.MeshStandardMaterial({
-      color: 0xc4c9ce,
+      color: 0x7d838a,
       map: brushedMetalTex,
       bumpMap: brushedMetalTex,
       bumpScale: 0.006,
-      metalness: 0.78,
-      roughness: 0.28,
+      metalness: 0.72,
+      roughness: 0.38,
+      envMapIntensity: 0.6,
     });
 
     const darkChamberMat = new THREE.MeshStandardMaterial({
-      color: 0x3f444a,
-      metalness: 0.7,
-      roughness: 0.42,
+      color: 0x33383d,
+      metalness: 0.45,
+      roughness: 0.5,
+      envMapIntensity: 0.5,
     });
 
     const wireClampMat = new THREE.MeshStandardMaterial({
-      color: 0xf1f5f9,
-      metalness: 0.85,
-      roughness: 0.18,
+      color: 0xc9d1d8,
+      metalness: 0.8,
+      roughness: 0.28,
+      envMapIntensity: 0.8,
     });
 
     const blowerChromeMat = new THREE.MeshStandardMaterial({
-      color: 0xe2e8f0,
-      metalness: 0.9,
-      roughness: 0.18,
+      color: 0xb8c0c8,
+      metalness: 0.8,
+      roughness: 0.28,
+      envMapIntensity: 0.8,
     });
 
     const motorDarkMat = new THREE.MeshStandardMaterial({
@@ -277,6 +297,7 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     });
 
     const kemplangMat = new THREE.MeshStandardMaterial({
+      color: 0xe6cda6,
       map: kemplangTex,
       roughness: 0.78,
       metalness: 0.02,
@@ -880,7 +901,21 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
       window.removeEventListener("touchmove", onTouchMove);
       canvas.removeEventListener("wheel", onWheel);
       window.removeEventListener("resize", onResize);
-      eng.textures.forEach((t) => t.dispose());
+
+      const disposedMaterials = new Set<THREE.Material>();
+      eng.scene?.traverse((object) => {
+        if (!(object instanceof THREE.Mesh)) return;
+        object.geometry.dispose();
+        const materials = Array.isArray(object.material) ? object.material : [object.material];
+        materials.forEach((material) => {
+          if (disposedMaterials.has(material)) return;
+          material.dispose();
+          disposedMaterials.add(material);
+        });
+      });
+
+      eng.textures.forEach((texture) => texture.dispose());
+      eng.envTexture?.dispose();
       eng.renderer?.dispose();
     };
   }, [compact]);
@@ -890,6 +925,9 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
   // -------------------------------------------------------------
   const handleSetCamera = (preset: "still1" | "still2" | "still3" | "front" | "rear") => {
     const eng = engineRef.current;
+    const el = containerRef.current;
+    const aspect = el ? el.clientWidth / el.clientHeight : 1.8;
+    const fitScale = aspect < 1.2 ? 1.55 : aspect < 1.8 ? 1.25 : 1;
     setCurrentCameraPreset(preset);
     eng.autoTurntable = false;
     setAutoTurntable(false);
@@ -898,10 +936,9 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
       // Perspective Isometric Studio (Still 1.png)
       eng.targetCamTheta = -0.62;
       eng.targetCamPhi = 0.86;
-      eng.targetCamRadius = 10.6;
+      eng.targetCamRadius = 10.6 * fitScale;
       eng.targetLookAt.set(0, 0.1, 0);
-      setHotspotCode("CAD-STILL-01");
-      setHotspotTitle("Perspektif Isometrik Studio (Still 1)");
+      setHotspotTitle("Perspektif isometrik");
       setHotspotDesc(
         "Menampilkan bentang total 124 cm, 6 rak penjepit U-loop berporos belakang, kap pelindung miring, laci arang ber-kenop oranye, dan blower keong ganda."
       );
@@ -909,10 +946,9 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
       // Orthographic-like Top-Down view (Still 2.png)
       eng.targetCamTheta = 0.0;
       eng.targetCamPhi = 0.14;
-      eng.targetCamRadius = 11.2;
+      eng.targetCamRadius = 11.2 * fitScale;
       eng.targetLookAt.set(0, 0.0, -0.05);
-      setHotspotCode("CAD-STILL-02");
-      setHotspotTitle("Tampak Atas Simetris 1:1 (Still 2)");
+      setHotspotTitle("Tampak atas simetris 1:1");
       setHotspotDesc(
         "Memperlihatkan 2 kompartemen abu arang, 6 briket membara dengan celah pendaran, 6 kemplang bulat, 2 blower keong + kabel hitam ke ECU, dan 2 kenop dimmer."
       );
@@ -920,29 +956,26 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
       // Oblique Close-Up view (Still 3 alpha.png)
       eng.targetCamTheta = -1.08;
       eng.targetCamPhi = 0.92;
-      eng.targetCamRadius = 7.2;
+      eng.targetCamRadius = 7.2 * fitScale;
       eng.targetLookAt.set(0.2, 0.22, -0.15);
-      setHotspotCode("CAD-STILL-03");
-      setHotspotTitle("Close-Up Rak Penjepit, Bara, & Panel ECU (Still 3)");
+      setHotspotTitle("Detail rak penjepit, bara, dan panel");
       setHotspotDesc(
         "Menyorot lengkungan kawat penjepit kemplang (hairpin U-loop), lubang masuk tiupan udara berbingkai krom pada dinding dalam, layar LCD biru, dan 2 kenop dimmer."
       );
     } else if (preset === "front") {
       eng.targetCamTheta = 0.0;
       eng.targetCamPhi = 1.15;
-      eng.targetCamRadius = 10.2;
+      eng.targetCamRadius = 10.2 * fitScale;
       eng.targetLookAt.set(0, -0.1, 0.35);
-      setHotspotCode("VIEW-FRONT");
-      setHotspotTitle("Tampak Depan Kompartemen Laci & Penjepit");
+      setHotspotTitle("Tampak depan laci dan penjepit");
       setHotspotDesc("2 kompartemen laci tarik ber-kenop oranye dan zona palung kemplang setinggi total 30 cm.");
     } else if (preset === "rear") {
       eng.targetCamTheta = -2.35;
       eng.targetCamPhi = 1.02;
-      eng.targetCamRadius = 8.2;
+      eng.targetCamRadius = 8.2 * fitScale;
       eng.targetLookAt.set(0, 0.1, -0.5);
-      setHotspotCode("VIEW-REAR");
-      setHotspotTitle("Tampak Belakang Panel Kontrol & Kap Miring");
-      setHotspotDesc("Layar digital LCD 20x4 I2C, 2 kenop dimmer PWM pengatur blower, dan sakelar daya utama AC 220V.");
+      setHotspotTitle("Tampak belakang panel kendali");
+      setHotspotDesc("Layar digital LCD 20×4 I2C, 2 kenop dimmer PWM pengatur blower, dan sakelar daya utama AC 220 V.");
     }
   };
 
@@ -960,9 +993,8 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     eng.rackPivotGroups.forEach((item) => {
       item.targetAngle = targetRad;
     });
-    setServoState(nextFlipped ? "POS 180° (ACTIVE)" : "POS 0° (HOME)");
-    setHotspotCode("ACT-01 // SERVO");
-    setHotspotTitle("Simulasi Rotasi 6 Servo MG996R");
+    setServoState(nextFlipped ? "Posisi 180° (aktif)" : "Posisi 0° (awal)");
+    setHotspotTitle("Rotasi enam servo");
     setHotspotDesc("Keenam penjepit kawat berputar 180° bertahap (staggered delay 30–85 ms) untuk meredam beban inrush current.");
   };
 
@@ -976,7 +1008,7 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
       item.currentAngle = rad;
       item.group.rotation.z = rad;
     });
-    setServoState(`MANUAL ${deg}°`);
+    setServoState(`Sudut ${deg}°`);
   };
 
   const handleToggleDrawers = () => {
@@ -986,8 +1018,7 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     eng.targetDrawerZ = next ? 1.55 : 0;
     if (next) {
       handleSetCamera("front");
-      setHotspotCode("CHM-02 // DRAWERS");
-      setHotspotTitle("Laci Bahan Bakar & Hamparan Bara Arang");
+      setHotspotTitle("Laci bahan bakar dan bara");
       setHotspotDesc(
         "Dua laci terpisah dengan kenop silinder oranye, hamparan abu arang, dan 3 briket hitam berpendar dengan celah retakan menyala."
       );
@@ -1001,8 +1032,7 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     eng.targetHoodAngle = next ? -1.05 : 0;
     if (next) {
       handleSetCamera("still3");
-      setHotspotCode("ENC-03 // HOOD");
-      setHotspotTitle("Inspeksi Kap Servo Berengsel");
+      setHotspotTitle("Kap servo berengsel");
       setHotspotDesc("Kap miring logam terbuka untuk memperlihatkan deretan 6 motor servo MG996R metal gear berkekuatan torsi 11 kg·cm.");
     }
   };
@@ -1013,54 +1043,47 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
     setIsCutoffActive(next);
     eng.isHysteresisCutoff = next;
     if (next) {
-      setTempValue("612.4 °C");
-      setHysteresisTag("OVERHEAT! CUT-OFF");
-      setBlowerState("CUT-OFF (0% RPM)");
-      setHotspotCode("HYST-04 // OVERHEAT");
-      setHotspotTitle("Logika Histeresis Aktif: Cut-Off ≥ 600°C");
+      setTempValue("612,4 °C");
+      setHysteresisTag("Cut-off ≥ 600 °C");
+      setBlowerState("Berhenti (0% PWM)");
+      setHotspotTitle("Histeresis aktif: cut-off ≥ 600 °C");
       setHotspotDesc(
-        "Termokopel Tipe-K mendeteksi suhu melebihi 600°C (612,4°C). Mikrokontroler otomatis memutus daya kedua blower keong agar kemplang tidak hangus."
+        "Termokopel tipe-K mendeteksi suhu melebihi 600 °C (612,4 °C). Mikrokontroler otomatis memutus daya kedua blower keong agar kemplang tidak hangus."
       );
     } else {
-      setTempValue("571.3 °C");
-      setHysteresisTag("IDEAL [550°–600°C]");
-      setBlowerState("ACTIVE (PWM 85%)");
-      setHotspotCode("HYST-05 // RECOVERY");
-      setHotspotTitle("Mode Pemulihan Termal Normal");
-      setHotspotDesc("Suhu ruang bakar turun ke rentang aman (550°C–600°C). Dual blower keong kembali berputar menyuplai oksigen.");
+      setTempValue("571,3 °C");
+      setHysteresisTag("Ideal (550–600 °C)");
+      setBlowerState("Aktif (PWM 85%)");
+      setHotspotTitle("Pemulihan termal");
+      setHotspotDesc("Suhu ruang bakar turun ke rentang aman (550–600 °C). Dua blower keong kembali berputar menyuplai oksigen.");
     }
   };
 
   const handleFocusHotspot = (id: number) => {
     if (id === 1) {
       handleSetCamera("still3");
-      setHotspotCode("HOT-01 // RACK");
-      setHotspotTitle("6x Rak Penjepit Kawat U-Loop (SUS 304)");
+      setHotspotTitle("Enam rak penjepit SUS 304");
       setHotspotDesc(
-        "Tangkai ganda melengkung (hairpin U-loop) berbahan kawat Stainless Steel SUS 304 food-grade (SNI 8753:2020), menjepit 1 keping kemplang bulat per rak."
+        "Tangkai ganda melengkung (hairpin U-loop) berbahan kawat stainless steel SUS 304 food-grade (SNI 8753:2020), menjepit 1 keping kemplang bulat per rak."
       );
     } else if (id === 2) {
       if (!isHoodOpen) handleToggleHood();
       handleSetCamera("still3");
-      setHotspotCode("HOT-02 // SERVO");
-      setHotspotTitle("6x Motor Servo MG996R Metal Gear");
+      setHotspotTitle("Enam servo MG996R");
       setHotspotDesc("Motor penggerak torsi tinggi di kompartemen belakang, terhubung langsung ke poros belakang rak penjepit kemplang.");
     } else if (id === 3) {
       handleSetCamera("still2");
-      setHotspotCode("HOT-03 // BARA");
-      setHotspotTitle("Ruang Bakar, Briket Arang, & Saluran Blower");
+      setHotspotTitle("Ruang bakar dan saluran blower");
       setHotspotDesc(
         "Hamparan abu keperakan dengan 6 briket arang membara (3 per kompartemen) serta lubang bundar berbingkai krom di dinding samping palung."
       );
     } else if (id === 4) {
       handleSetCamera("rear");
-      setHotspotCode("HOT-04 // ECU");
-      setHotspotTitle("Panel Kendali Belakang & LCD 20x4 I2C");
+      setHotspotTitle("Panel kendali dan LCD");
       setHotspotDesc("Layar digital berlatar biru, 2 kenop putar dimmer blower (PWM AC), dan tombol sakelar daya merah.");
     } else if (id === 5) {
       handleSetCamera("still1");
-      setHotspotCode("HOT-05 // BLOWER");
-      setHotspotTitle("Dual Blower Keong Sentrifugal (12 cm x 2)");
+      setHotspotTitle("Dua blower keong");
       setHotspotDesc(
         "Rumah keong silver metalik, kap intake dengan rotating sector wheel, sakelar hijau, pipa siku L melengkung, dan kabel daya melengkung ke kotak ECU."
       );
@@ -1068,261 +1091,190 @@ export default function Intan3DViewer({ compact = false, className = "" }: Intan
   };
 
   return (
-    <div className={`industrial-panel rounded-lg overflow-hidden border border-white/[0.1] ${className}`}>
-      {/* Precision Viewport Header */}
-      <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-[#0a0a0a] border-b border-white/[0.08] flex items-center justify-between gap-2 text-xs font-mono">
-        <div className="flex items-center gap-2 text-[10px] sm:text-xs truncate">
-          <span className="text-[#ff5500] font-bold shrink-0">VIEWPORT // 3D MODEL</span>
-          <span className="text-neutral-600 hidden sm:inline">|</span>
-          <span className="text-neutral-400 hidden sm:inline">SCALE 1:1 CAD BLUEPRINT [1240 × 300 × 300 MM]</span>
+    <div className={`overflow-hidden border border-paper/15 bg-stage-raised ${className}`}>
+      <div className="flex items-center justify-between gap-3 border-b border-paper/10 px-4 py-3">
+        <div className="text-sm text-paper/60">
+          Model 3D <span className="text-steel">·</span> simulasi
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {!compact && (
-            <button
-              onClick={() => {
-                const next = studioBg === "light" ? "dark" : "light";
-                setStudioBg(next);
-                if (engineRef.current.studioFloorMesh) {
-                  engineRef.current.studioFloorMesh.visible = next === "light";
-                }
-              }}
-              className="px-2 sm:px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-[10px] sm:text-[11px] font-mono text-neutral-300 border border-white/[0.08] transition flex items-center gap-1.5"
-            >
-              {studioBg === "light" ? <Sun className="w-3 h-3 text-amber-400" /> : <Moon className="w-3 h-3 text-sky-400" />}
-              <span className="hidden sm:inline">{studioBg === "light" ? "STUDIO (STILL 1)" : "DARK (STILL 3)"}</span>
-            </button>
-          )}
-          <button
-            onClick={() => {
-              const next = !autoTurntable;
-              setAutoTurntable(next);
-              engineRef.current.autoTurntable = next;
-            }}
-            className={`px-2 sm:px-2.5 py-1 rounded text-[10px] sm:text-[11px] font-mono border transition ${
-              autoTurntable
-                ? "bg-[#ff5500]/15 text-[#ff5500] border-[#ff5500]/30"
-                : "bg-white/[0.05] text-neutral-400 border-white/[0.08]"
-            }`}
-          >
-            <span className="hidden sm:inline">PUTAR 360°: </span>{autoTurntable ? "360° ON" : "360° OFF"}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !autoTurntable;
+            setAutoTurntable(next);
+            engineRef.current.autoTurntable = next;
+          }}
+          aria-pressed={autoTurntable}
+          className={`inline-flex min-h-11 items-center gap-2 border px-3 py-1.5 text-xs font-medium transition ${
+            autoTurntable
+              ? "border-ember/60 bg-ember/10 text-ember-bright"
+              : "border-paper/15 text-paper/65 hover:text-paper"
+          }`}
+        >
+          <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
+          Putar 360°
+        </button>
       </div>
 
-      {/* 3D Canvas Viewport & Framing */}
       <div
         ref={containerRef}
-        className={`relative w-full ${compact ? "h-[300px] xs:h-[340px] sm:h-[380px]" : "h-[360px] xs:h-[400px] sm:h-[480px]"} transition-colors duration-300 select-none`}
-        style={{
-          background:
-            studioBg === "light"
-              ? "radial-gradient(circle at 50% 45%, #f4f1ea 0%, #dcd7cd 100%)"
-              : "radial-gradient(circle at 50% 45%, #1a1615 0%, #080706 100%)",
-        }}
+        className={`relative w-full select-none ${
+          compact ? "h-[300px] sm:h-[380px]" : "h-[360px] sm:h-[520px]"
+        }`}
+        style={{ background: "radial-gradient(circle at 50% 45%, #211c18 0%, #0b0a09 100%)" }}
       >
-        <canvas ref={canvasRef} className="w-full h-full block cursor-grab active:cursor-grabbing touch-none" />
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label="Model 3D interaktif INTAN; gunakan tombol sudut dan kontrol di bawah untuk memutar dan membuka komponen"
+          className="block h-full w-full cursor-grab touch-none active:cursor-grabbing"
+        />
+        <p className="pointer-events-none absolute bottom-3 left-4 text-xs text-paper/60">
+          Seret untuk memutar · gulir untuk zoom
+        </p>
+      </div>
 
-        {/* Viewfinder Crosshairs */}
-        <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-neutral-500/50 pointer-events-none" />
-        <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-neutral-500/50 pointer-events-none" />
-        <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-neutral-500/50 pointer-events-none" />
-        <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-neutral-500/50 pointer-events-none" />
+      <div className="flex flex-wrap items-center gap-2 border-t border-paper/10 px-4 py-3">
+        <span className="shrink-0 py-1.5 text-xs text-steel">Sudut</span>
+        {(
+          [
+            ["still1", "Isometri"],
+            ["still2", "Atas"],
+            ["still3", "Penggerak"],
+            ["front", "Depan"],
+            ["rear", "Belakang"],
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => handleSetCamera(key)}
+            className={`min-h-11 shrink-0 border px-3 py-1.5 text-xs font-medium transition ${
+              currentCameraPreset === key
+                ? "border-ember/60 text-ember-bright"
+                : "border-transparent text-paper/70 hover:text-paper"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-        {/* Mobile touch hint badge */}
-        <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm border border-white/10 text-[9px] font-mono text-neutral-400 pointer-events-none sm:hidden">
-          1-JARI: ROTASI 3D
+      <div className="border-t border-paper/10 px-4 py-3" aria-live="polite">
+        <p className="mt-1 text-sm font-medium text-paper">{hotspotTitle}</p>
+        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-paper/65">{hotspotDesc}</p>
+      </div>
+
+      <div className="grid grid-cols-2 divide-x divide-paper/10 border-t border-paper/10 bg-stage sm:grid-cols-4">
+        <div className="p-4">
+          <p className="text-xs text-steel">Suhu bara</p>
+          <p className="mt-1 font-mono text-sm font-medium text-paper tabular-numbers">{tempValue}</p>
         </div>
-
-        {/* Technical HUD Overlay Box */}
-        <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 max-w-[240px] sm:max-w-sm bg-[#0a0a0a]/90 backdrop-blur-sm border border-white/[0.12] rounded p-2.5 sm:p-3 text-left pointer-events-none shadow-lg">
-          <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400 mb-0.5 sm:mb-1">
-            <span className="text-[#ff5500] font-bold">{hotspotCode}</span>
-            <span className="flex items-center gap-1 text-emerald-400">
-              <CheckCircle2 className="w-2.5 h-2.5" /> CAD VERIFIED
-            </span>
-          </div>
-          <div className="font-display font-bold text-xs sm:text-sm text-white tracking-tight truncate sm:whitespace-normal">{hotspotTitle}</div>
-          <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-0.5 sm:mt-1 leading-relaxed font-sans line-clamp-2 sm:line-clamp-none">{hotspotDesc}</p>
+        <div className="p-4">
+          <p className="text-xs text-steel">Histeresis</p>
+          <p className={`mt-1 text-sm font-medium ${isCutoffActive ? "text-ember-bright" : "text-paper/80"}`}>
+            {hysteresisTag}
+          </p>
         </div>
-
-        {/* Camera Preset Selector (Matching Still 1, Still 2, Still 3, Front, Rear) */}
-        <div className="absolute bottom-2.5 right-2.5 max-w-[calc(100%-1.25rem)] flex items-center gap-1 bg-[#0a0a0a]/90 backdrop-blur-sm p-1 rounded border border-white/[0.1] overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => handleSetCamera("still1")}
-            className={`px-2 py-1 rounded text-[10px] font-mono shrink-0 transition ${
-              currentCameraPreset === "still1" ? "bg-[#ff5500] text-black font-bold" : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
-            }`}
-          >
-            <span className="sm:hidden">ISO</span>
-            <span className="hidden sm:inline">STILL 1 (ISO)</span>
-          </button>
-          <button
-            onClick={() => handleSetCamera("still2")}
-            className={`px-2 py-1 rounded text-[10px] font-mono shrink-0 transition ${
-              currentCameraPreset === "still2" ? "bg-[#ff5500] text-black font-bold" : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
-            }`}
-          >
-            <span className="sm:hidden">TOP</span>
-            <span className="hidden sm:inline">STILL 2 (TOP)</span>
-          </button>
-          <button
-            onClick={() => handleSetCamera("still3")}
-            className={`px-2 py-1 rounded text-[10px] font-mono shrink-0 transition ${
-              currentCameraPreset === "still3" ? "bg-[#ff5500] text-black font-bold" : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
-            }`}
-          >
-            <span className="sm:hidden">DRIVE</span>
-            <span className="hidden sm:inline">STILL 3 (DRIVE)</span>
-          </button>
-          <button
-            onClick={() => handleSetCamera("front")}
-            className={`px-2 py-1 rounded text-[10px] font-mono shrink-0 transition ${
-              currentCameraPreset === "front" ? "bg-[#ff5500] text-black font-bold" : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
-            }`}
-          >
-            FRONT
-          </button>
-          <button
-            onClick={() => handleSetCamera("rear")}
-            className={`px-2 py-1 rounded text-[10px] font-mono shrink-0 transition ${
-              currentCameraPreset === "rear" ? "bg-[#ff5500] text-black font-bold" : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
-            }`}
-          >
-            <span className="sm:hidden">REAR</span>
-            <span className="hidden sm:inline">REAR ECU</span>
-          </button>
+        <div className="border-t border-paper/10 p-4 sm:border-t-0">
+          <p className="text-xs text-steel">Blower</p>
+          <p className={`mt-1 text-sm font-medium ${isCutoffActive ? "text-ember-bright" : "text-paper/80"}`}>
+            {blowerState}
+          </p>
+        </div>
+        <div className="border-t border-paper/10 p-4 sm:border-t-0">
+          <p className="text-xs text-steel">Servo</p>
+          <p className="mt-1 text-sm font-medium text-paper/80">{servoState}</p>
         </div>
       </div>
 
-      {/* Industrial LCD Character Matrix Display (Real-time Telemetry) */}
-      <div className="p-2.5 sm:p-3 bg-[#000d18] border-t border-[#002845] font-mono text-xs">
-        <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-sky-400/80 mb-1 px-1">
-          <span className="flex items-center gap-1.5 truncate">
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse shrink-0" />
-            <span className="truncate">PANEL KENDALI BELAKANG // LCD 20X4</span>
-          </span>
-          <span className="text-emerald-400 shrink-0">ECU: 44.2°C</span>
-        </div>
-        <div className="lcd-screen rounded p-2 sm:p-3 text-[10px] sm:text-xs leading-relaxed space-y-1">
-          <div className="flex justify-between items-center border-b border-sky-950 pb-1 gap-2">
-            <span className="truncate">INTAN SMART ROASTER</span>
-            <span className="text-amber-400 font-bold shrink-0">[AUTO-CYCLE]</span>
-          </div>
-          <div className="flex justify-between items-center gap-2">
-            <span className="truncate text-sky-300/80">SUHU BARA (MAX6675)</span>
-            <span className="font-bold text-white shrink-0 tabular-numbers">{tempValue}</span>
-          </div>
-          <div className="flex justify-between items-center gap-2">
-            <span className="truncate text-sky-300/80">KENDALI HISTERESIS</span>
-            <span className={isCutoffActive ? "text-rose-400 font-bold animate-pulse shrink-0" : "text-emerald-400 shrink-0"}>
-              {hysteresisTag}
-            </span>
-          </div>
-          <div className="flex justify-between items-center gap-2">
-            <span className="truncate text-sky-300/80">DUAL BLOWER KEONG</span>
-            <span className={isCutoffActive ? "text-rose-400 font-bold shrink-0" : "text-sky-300 shrink-0"}>{blowerState}</span>
-          </div>
-          <div className="flex justify-between items-center border-t border-sky-950 pt-1 gap-2">
-            <span className="truncate text-sky-300/80">6X SERVO MG996R</span>
-            <span className="text-amber-300 shrink-0">{servoState}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Hardware Actuation Controls */}
       {!compact && (
-        <div className="p-3 sm:p-4 bg-[#0d0d0d] border-t border-white/[0.08] space-y-3 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
-            <span className="text-neutral-400 uppercase tracking-wider font-bold flex items-center gap-1.5 text-[11px] sm:text-xs">
-              <Sliders className="w-3.5 h-3.5 text-[#ff5500]" /> KONTROL MEKANIK &amp; AKTUASI
+        <div className="space-y-4 border-t border-paper/10 p-4">
+          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <span className="flex items-center gap-2 text-xs font-medium text-paper/65">
+              <Sliders className="h-4 w-4 text-ember-bright" aria-hidden="true" />
+              Kontrol mekanik
             </span>
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <span className="text-neutral-400 text-[10px] sm:text-[11px] shrink-0">SUDUT SERVO:</span>
-              <span className="text-[#ff5500] font-bold tabular-numbers w-8 sm:w-10 text-right shrink-0">{servoAngleDeg}°</span>
+            <div className="flex items-center gap-2.5">
+              <label htmlFor="servo-angle" className="text-xs text-steel">
+                Sudut servo
+              </label>
+              <span className="w-10 text-right font-mono text-xs text-ember-bright tabular-numbers">
+                {servoAngleDeg}°
+              </span>
               <input
+                id="servo-angle"
                 type="range"
                 min="0"
                 max="180"
                 value={servoAngleDeg}
                 onChange={(e) => handleServoSlide(e.target.value)}
-                className="w-full sm:w-32 h-1.5 bg-neutral-800 rounded appearance-none cursor-pointer"
+                className="h-1.5 w-32 cursor-pointer appearance-none rounded bg-paper/15"
               />
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <button
+              type="button"
               onClick={handleFlipServo}
-              className="px-2.5 sm:px-3 py-2 sm:py-2.5 rounded bg-white/[0.04] active:bg-white/[0.1] hover:bg-white/[0.08] border border-white/[0.1] text-[11px] sm:text-xs font-mono font-medium text-neutral-200 hover:text-white transition flex items-center justify-center gap-1.5 sm:gap-2"
+              className="inline-flex min-h-11 items-center justify-center gap-2 border border-paper/15 bg-stage px-3 py-2.5 text-xs font-medium text-paper/80 transition hover:bg-paper/5 hover:text-paper"
             >
-              <RotateCw className="w-3.5 h-3.5 text-[#ff5500] shrink-0" />
-              <span>FLIP 180°</span>
+              <RotateCw className="h-3.5 w-3.5 text-ember-bright" aria-hidden="true" />
+              Balik 180°
             </button>
             <button
+              type="button"
               onClick={handleToggleDrawers}
-              className="px-2.5 sm:px-3 py-2 sm:py-2.5 rounded bg-white/[0.04] active:bg-white/[0.1] hover:bg-white/[0.08] border border-white/[0.1] text-[11px] sm:text-xs font-mono font-medium text-neutral-200 hover:text-white transition flex items-center justify-center gap-1.5 sm:gap-2"
+              className="inline-flex min-h-11 items-center justify-center gap-2 border border-paper/15 bg-stage px-3 py-2.5 text-xs font-medium text-paper/80 transition hover:bg-paper/5 hover:text-paper"
             >
-              <Layers className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-              <span>{isDrawerOpen ? "TUTUP LACI" : "TARIK 2 LACI"}</span>
+              <Layers className="h-3.5 w-3.5 text-paper/50" aria-hidden="true" />
+              {isDrawerOpen ? "Tutup laci" : "Tarik 2 laci"}
             </button>
             <button
+              type="button"
               onClick={handleToggleHood}
-              className="px-2.5 sm:px-3 py-2 sm:py-2.5 rounded bg-white/[0.04] active:bg-white/[0.1] hover:bg-white/[0.08] border border-white/[0.1] text-[11px] sm:text-xs font-mono font-medium text-neutral-200 hover:text-white transition flex items-center justify-center gap-1.5 sm:gap-2"
+              className="inline-flex min-h-11 items-center justify-center gap-2 border border-paper/15 bg-stage px-3 py-2.5 text-xs font-medium text-paper/80 transition hover:bg-paper/5 hover:text-paper"
             >
-              <Camera className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-              <span>{isHoodOpen ? "TUTUP KAP" : "BUKA KAP SERVO"}</span>
+              <Camera className="h-3.5 w-3.5 text-paper/50" aria-hidden="true" />
+              {isHoodOpen ? "Tutup kap" : "Buka kap servo"}
             </button>
             <button
+              type="button"
               onClick={handleToggleCutoff}
-              className={`px-2.5 sm:px-3 py-2 sm:py-2.5 rounded border text-[11px] sm:text-xs font-mono font-medium transition flex items-center justify-center gap-1.5 sm:gap-2 ${
+              className={`inline-flex min-h-11 items-center justify-center gap-2 border px-3 py-2.5 text-xs font-medium transition ${
                 isCutoffActive
-                  ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                  : "bg-white/[0.04] active:bg-white/[0.1] hover:bg-white/[0.08] border-white/[0.1] text-neutral-200"
+                  ? "border-ember/60 bg-ember/10 text-ember-bright"
+                  : "border-paper/15 bg-stage text-paper/80 hover:bg-paper/5"
               }`}
             >
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>{isCutoffActive ? "KEMBALI 550°" : "CUT-OFF ≥ 600°"}</span>
+              <AlertTriangle className="h-3.5 w-3.5 text-ember-bright" aria-hidden="true" />
+              {isCutoffActive ? "Kembali 550 °C" : "Cut-off 600 °C"}
             </button>
           </div>
 
-          {/* Horizontal Swipeable Inspection Hotspots */}
-          <div className="pt-2 border-t border-white/[0.06] flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] overflow-x-auto scrollbar-none pb-0.5">
-            <span className="text-neutral-500 py-1 mr-1 shrink-0 text-[10px]">INSPEKSI:</span>
-            <button
-              onClick={() => handleFocusHotspot(1)}
-              className="px-2.5 py-1 rounded bg-white/[0.03] active:bg-white/[0.1] hover:bg-white/[0.08] text-neutral-300 border border-white/[0.06] shrink-0 transition"
-            >
-              01 // U-LOOP
-            </button>
-            <button
-              onClick={() => handleFocusHotspot(2)}
-              className="px-2.5 py-1 rounded bg-white/[0.03] active:bg-white/[0.1] hover:bg-white/[0.08] text-neutral-300 border border-white/[0.06] shrink-0 transition"
-            >
-              02 // 6X SERVO
-            </button>
-            <button
-              onClick={() => handleFocusHotspot(3)}
-              className="px-2.5 py-1 rounded bg-white/[0.03] active:bg-white/[0.1] hover:bg-white/[0.08] text-neutral-300 border border-white/[0.06] shrink-0 transition"
-            >
-              03 // BARA ARANG
-            </button>
-            <button
-              onClick={() => handleFocusHotspot(4)}
-              className="px-2.5 py-1 rounded bg-white/[0.03] active:bg-white/[0.1] hover:bg-white/[0.08] text-neutral-300 border border-white/[0.06] shrink-0 transition"
-            >
-              04 // LCD/DIMMER
-            </button>
-            <button
-              onClick={() => handleFocusHotspot(5)}
-              className="px-2.5 py-1 rounded bg-white/[0.03] active:bg-white/[0.1] hover:bg-white/[0.08] text-neutral-300 border border-white/[0.06] shrink-0 transition"
-            >
-              05 // DUAL BLOWER
-            </button>
+          <div className="flex flex-wrap items-center gap-2 border-t border-paper/10 pt-3">
+            <span className="shrink-0 pr-1 text-xs text-steel">Inspeksi</span>
+            {(
+              [
+                [1, "Rak penjepit"],
+                [2, "Enam servo"],
+                [3, "Bara arang"],
+                [4, "Panel"],
+                [5, "Blower"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => handleFocusHotspot(id)}
+                className="min-h-11 shrink-0 border border-paper/15 px-3 py-1.5 text-xs text-paper/65 transition hover:bg-paper/5 hover:text-paper"
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       )}
-
     </div>
   );
 }
