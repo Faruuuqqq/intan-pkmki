@@ -1,200 +1,258 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
-import { metrics, systemModel, hki } from "@/data/site";
-import Intan3DViewer from "@/components/3d/Intan3DViewer";
+import { TableScroll } from "@/components/ui/TableScroll";
+import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
+import { facts, hki } from "@/data/site";
+import { sampelUjiData } from "@/data/sampelUji";
+
+const langkah = [
+  {
+    judul: "Jepit enam keping",
+    isi: "Enam rak U-loop dari kawat SUS 304 menahan kemplang di posisi yang sama setiap siklus. Tidak ada keping yang bergeser atau menumpuk.",
+  },
+  {
+    judul: "Putar di atas bara",
+    isi: "Servo membalik setiap rak 180° secara bergantian dengan jeda 30 ms. Operator cukup memuat dan memanen, tidak perlu berdiri di depan api.",
+  },
+  {
+    judul: "Jaga suhu di 550–600 °C",
+    isi: "Termokopel tipe-K membaca suhu ruang bakar. Blower dimatikan saat suhu menyentuh 600 °C, lalu dinyalakan lagi ketika turun ke 550 °C.",
+  },
+];
 
 export default function HomePage() {
   return (
-    <div className="bg-[#050505] text-[#ededed]">
-      {/* Hero Section */}
-      <section className="relative border-b border-white/[0.08] bg-tech-grid pt-12 pb-20 lg:pt-16 lg:pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          
-          {/* Hardware Header Tag */}
-          <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono text-neutral-400 mb-6">
-            <span className="text-[#ff5500] font-bold">SYSTEM OVERVIEW</span>
-            <span>/</span>
-            <span>{systemModel}</span>
-            <span>/</span>
-            <span className="text-neutral-500">HKI #{hki}</span>
-          </div>
+    <div className="bg-stage text-paper">
+      <section className="relative overflow-hidden border-b border-paper/10">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_72%_62%,rgba(226,84,44,0.16),transparent_58%)]"
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto max-w-[1200px] px-5 pb-10 pt-12 sm:px-8 lg:pb-0 lg:pt-16">
+          <p className="text-sm text-steel">PKM-KI 2026 · Universitas Padjadjaran</p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            
-            {/* Left Column: Editorial Hardware Typography */}
-            <div className="lg:col-span-5 space-y-5 sm:space-y-6">
-              <h1 className="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-[1.08]">
-                INTAN <span className="text-neutral-500">MK-II</span>
-                <span className="block text-xl sm:text-3xl font-mono font-normal text-neutral-300 mt-2 tracking-normal">
-                  Smart Rotary Roaster
-                </span>
+          <div className="grid items-end gap-8 lg:grid-cols-12">
+            <div className="relative z-10 pt-8 lg:col-span-5 lg:pb-20">
+              <h1 className="font-display text-5xl font-semibold leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
+                Kemplang tunu,
+                <br />
+                tanpa tangan
+                <br />
+                <span className="text-ember-bright">terbakar.</span>
               </h1>
-
-              <p className="text-xs sm:text-base text-neutral-400 leading-relaxed font-sans max-w-lg">
-                Sistem pemanggangan kemplang tunu berotasi otomatis berbasis mikrokontroler. Mentransformasi kapasitas produksi hingga <strong className="text-white">400–420 keping/jam</strong> dengan kestabilan termal tertutup tanpa menghilangkan aroma bara arang autentik.
+              <p className="mt-6 max-w-md text-base leading-relaxed text-paper/65 sm:text-lg">
+                INTAN memutar enam keping di atas bara arang dengan kendali suhu
+                550–600 °C. Kapasitas naik, rasa smoky tetap, dan operator tidak
+                lagi menghirup asap di depan tungku.
               </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/dampak#video"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 bg-paper px-5 py-3 text-sm font-semibold text-graphite transition-colors hover:bg-paper-raised"
+                >
+                  <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+                  Tonton demo
+                </Link>
                 <Link
                   href="/produk"
-                  className="inline-flex items-center justify-center gap-2 text-xs font-mono font-bold px-5 py-3 rounded bg-white text-black hover:bg-neutral-200 transition"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 border border-paper/25 px-5 py-3 text-sm font-semibold text-paper transition-colors hover:bg-paper/5"
                 >
-                  <span>EXPLORE 3D STUDIO</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-                <Link
-                  href="/riset"
-                  className="inline-flex items-center justify-center gap-2 text-xs font-mono font-medium px-5 py-3 rounded bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-white transition"
-                >
-                  <span>VALIDATION DATA</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  Lihat mesin
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
-
-              {/* Hardware Highlights Line */}
-              <div className="pt-4 border-t border-white/[0.06] flex flex-wrap gap-4 sm:gap-6 text-[10px] sm:text-[11px] font-mono text-neutral-400">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#ff5500]" />
-                  <span>SUS 304 FOOD-GRADE</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>TKT LEVEL 8 TESTED</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-                  <span>HYSTERESIS 550–600°C</span>
-                </div>
-              </div>
+              <p className="mt-5 text-xs leading-relaxed text-steel">
+                {facts.tkt} · HKI #{hki} · {facts.material}
+              </p>
             </div>
 
-            {/* Right Column: 3D Viewport Framed */}
-            <div className="lg:col-span-7">
-              <Intan3DViewer compact={true} />
+            <div className="relative lg:col-span-7">
+              <Image
+                src="/alat/intan-tiga-perempat.webp"
+                alt="Render konsep INTAN: pemanggang kemplang tunu stainless steel dengan enam keping di atas bara arang"
+                width={1610}
+                height={907}
+                priority
+                sizes="(min-width: 1024px) 58vw, 100vw"
+                className="h-auto w-[112%] max-w-none -ml-[6%] lg:w-[136%] lg:-ml-[18%]"
+              />
+              <p className="pb-4 text-right text-xs text-steel lg:pb-8">
+                Render konsep INTAN MK-II · tampak tiga perempat
+              </p>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* Numerical Benchmark Strip - Clean 2x2 grid on mobile & 4 cols on desktop */}
-      <section className="border-b border-white/[0.08] bg-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.08]">
-            {metrics.map((m) => (
-              <div key={m.code} className="bg-[#0a0a0a] p-4 sm:p-6 space-y-1.5 sm:space-y-2">
-                <div className="text-[9px] sm:text-[10px] font-mono tracking-widest text-neutral-500 uppercase truncate">
-                  {m.code} {"//"} {m.label}
-                </div>
-                <div className="font-display font-extrabold text-2xl sm:text-4xl text-white tracking-tight tabular-numbers">
-                  {m.value}{" "}
-                  <span className="text-[10px] sm:text-xs font-mono font-normal text-neutral-400 ml-0.5 sm:ml-1">
-                    {m.unit}
-                  </span>
-                </div>
-                <div className="text-[10px] sm:text-xs text-neutral-400 font-mono">
-                  {m.benchmark}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Engineering Comparison: Problem vs Architecture */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="max-w-3xl mb-12 space-y-2">
-          <div className="text-[11px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-            01 // INDUSTRIAL PROBLEM &amp; SYSTEM ARCHITECTURE
-          </div>
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
-            Memodernisasi Tradisi Tanpa Mengorbankan Cita Rasa
-          </h2>
-          <p className="text-sm text-neutral-400 leading-relaxed font-sans">
-            Sebanyak 77.678 industri mikro dan kecil (IMK) di Sumatera Selatan (BPS Provinsi Sumatera Selatan, 2026) menghadapi keterbatasan kapasitas pemanggangan kemplang tunu konvensional yang mengandalkan tenaga manusia penuh di tengah paparan panas ekstrem.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Conventional Card */}
-          <div className="industrial-card rounded-lg p-6 space-y-4">
-            <div className="flex items-center justify-between text-xs font-mono text-neutral-400">
-              <span className="text-rose-400 font-bold">CONVENTIONAL MANUAL METHOD</span>
-              <span>BASELINE</span>
-            </div>
-            <div className="font-display font-bold text-xl text-white">
-              Hambatan Produksi Tradisional
-            </div>
-            <ul className="space-y-3 text-xs sm:text-sm text-neutral-300 font-sans">
-              <li className="flex items-start gap-2.5">
-                <span className="text-rose-400 font-mono font-bold">✕</span>
-                <span>Kapasitas terbatas <strong>80–100 keping/jam</strong> akibat keterbatasan fisik operator.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-rose-400 font-mono font-bold">✕</span>
-                <span>Tingkat cacat dan gosong mencapai <strong>2% – 10%</strong> karena fluktuasi panas bara tak terukur.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-rose-400 font-mono font-bold">✕</span>
-                <span>Paparan radiasi panas langsung (400°C–600°C) dan asap karbon monoksida (CO).</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* INTAN Solution Card */}
-          <div className="industrial-card rounded-lg p-6 space-y-4 border-l-2 border-l-[#ff5500]">
-            <div className="flex items-center justify-between text-xs font-mono text-neutral-400">
-              <span className="text-[#ff5500] font-bold">INTAN MK-II AUTOMATION</span>
-              <span>SOLUTION</span>
-            </div>
-            <div className="font-display font-bold text-xl text-white">
-              Otomasi Hibrida Arang-Mikrokontroler
-            </div>
-            <ul className="space-y-3 text-xs sm:text-sm text-neutral-300 font-sans">
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-[#ff5500] shrink-0 mt-0.5" />
-                <span>Kapasitas melonjak hingga <strong>400–420 keping/jam</strong> dengan 6 rak penjepit serempak.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-[#ff5500] shrink-0 mt-0.5" />
-                <span>Kendali histeresis dual blower (550°C–600°C) memangkas produk cacat hingga <strong>&lt; 5%</strong>.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-[#ff5500] shrink-0 mt-0.5" />
-                <span>Mempertahankan bahan bakar bara arang alami untuk menghasilkan cita rasa <em>smoky</em> khas.</span>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-        {/* Technical Callout Strip */}
-        <div className="mt-12 p-6 rounded-lg bg-[#0d0d0d] border border-white/[0.08] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <div className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-              CAD BLUEPRINT &amp; SCHEMATIC VERIFICATION
-            </div>
-            <div className="font-display font-bold text-lg text-white">
-              Pelajari Konstruksi Dimensi 124 cm &amp; Skema Wiring 3-Zona
-            </div>
-            <p className="text-xs text-neutral-400">
-              Baja Stainless SUS 304 standar SNI 8753:2020 dan isolasi kelistrikan daya/logika.
+      <section className="border-b border-paper/10">
+        <div className="mx-auto grid max-w-[1200px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-12 lg:py-20">
+          <div className="lg:col-span-7">
+            <Link
+              href="/dampak#video"
+              className="group relative block overflow-hidden border border-paper/10"
+              aria-label="Tonton video demonstrasi INTAN"
+            >
+              <Image
+                src="/alat/demo-poster.jpg"
+                alt="Cuplikan video pengujian pemanggangan kemplang tunu di atas bara arang"
+                width={1280}
+                height={720}
+                sizes="(min-width: 1024px) 58vw, 100vw"
+                className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.01]"
+              />
+              <span className="absolute inset-0 flex items-center justify-center bg-graphite/15">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-paper text-graphite">
+                  <Play className="ml-1 h-6 w-6 fill-current" aria-hidden="true" />
+                </span>
+              </span>
+            </Link>
+            <p className="mt-3 text-xs leading-relaxed text-steel">
+              Rekaman uji pemanggangan langsung: enam keping, bara arang aktif,
+              dan mekanisme pembalik servo.
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+
+          <div className="lg:col-span-5">
+            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Bara tetap.
+              <br />
+              Tangan tidak.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-paper/65">
+              Metode manual menuntut operator berada di depan bara selama jam
+              produksi.{" "}INTAN memindahkan pekerjaan berulang itu ke mekanisme
+              yang terukur, tanpa mengganti bahan bakar atau aroma khasnya.
+            </p>
+            <dl className="mt-8 border-t border-paper/10">
+              {[
+                ["Kapasitas", facts.capacity],
+                ["Waktu siklus", facts.cycle],
+                ["Setpoint", facts.setpoint],
+                ["Operator", "1 orang"],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex items-baseline justify-between gap-6 border-b border-paper/10 py-3.5"
+                >
+                  <dt className="text-sm text-paper/65">{label}</dt>
+                  <dd className="text-right text-sm font-semibold text-paper">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section className="surface-paper bg-paper text-graphite">
+        <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-20 sm:px-8 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <p className="text-sm font-semibold text-ember-dark">Cara kerja</p>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Tiga hal yang terjadi di dalam mesin.
+            </h2>
+            <p className="mt-4 max-w-md text-base leading-relaxed text-steel-text">
+              Bukan robot yang menggantikan rasa. Hanya bagian panas dan berulang
+              yang diambil alih, sementara arang dan kemplang tetap sama.
+            </p>
+            <Image
+              src="/alat/intan-atas.webp"
+              alt="Render tampak atas INTAN yang memperlihatkan enam rak penjepit dan dua kompartemen bara"
+              width={1500}
+              height={582}
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              className="mt-10 h-auto w-full"
+            />
+            <p className="mt-2 text-xs text-steel-text">
+              Render konsep · enam rak U-loop dan dua kompartemen arang.
+            </p>
+          </div>
+
+          <ol className="divide-y divide-graphite/15 border-t border-graphite/15 lg:col-span-7">
+            {langkah.map((item, index) => (
+              <li key={item.judul} className="grid grid-cols-[auto_1fr] gap-5 py-7 sm:gap-8">
+                <span className="font-display text-3xl font-semibold text-ember-dark tabular-numbers sm:text-4xl">
+                  0{index + 1}
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold tracking-tight">{item.judul}</h3>
+                  <p className="mt-2 max-w-xl text-base leading-relaxed text-steel-text">{item.isi}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="surface-paper border-t border-graphite/10 bg-paper-raised text-graphite">
+        <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-semibold text-ember-dark">Data uji</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Enam sampel. Enam matang.
+              </h2>
+            </div>
             <Link
-              href="/produk"
-              className="px-4 py-2 rounded bg-white text-black font-mono font-bold text-xs hover:bg-neutral-200 transition"
+              href="/riset"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-graphite underline decoration-graphite/30 underline-offset-4 hover:decoration-graphite"
             >
-              BLUEPRINT // 3D
+              Lihat seluruh data
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
+          </div>
+
+          <TableScroll className="mt-8" label="Tabel sampel uji INTAN">
+            <table className="w-full min-w-[540px] border-collapse text-left text-sm">
+              <caption className="sr-only">
+                Enam sampel uji kemplang tunu: waktu, suhu, dan catatan.
+              </caption>
+              <thead>
+                <tr className="border-b border-graphite/25 text-xs text-steel-text">
+                  <th scope="col" className="py-3 pr-4 font-medium">Batch</th>
+                  <th scope="col" className="py-3 pr-4 font-medium">Waktu</th>
+                  <th scope="col" className="py-3 pr-4 font-medium">Suhu</th>
+                  <th scope="col" className="py-3 font-medium">Catatan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-graphite/10">
+                {sampelUjiData.map((item) => (
+                  <tr key={item.id}>
+                    <td className="py-3 pr-4 font-medium tabular-numbers">{String(item.id).padStart(2, "0")}</td>
+                    <td className="py-3 pr-4 tabular-numbers">{item.waktu} detik</td>
+                    <td className="py-3 pr-4 tabular-numbers">{item.suhu.toLocaleString("id-ID", { maximumFractionDigits: 2 })} °C</td>
+                    <td className="py-3 text-steel-text">{item.keterangan}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+          <p className="mt-4 max-w-3xl text-xs leading-relaxed text-steel-text">
+            Setpoint operasi 550–600 °C. Sampel 1–3 berada di bawah setpoint
+            (492–540 °C); sampel 1–2 masih pemanasan awal, sampel 3 tetap matang
+            merata. Sampel 4 memicu cut-off pada 612,4 °C sebelum kembali stabil.
+          </p>
+        </div>
+      </section>
+
+      <section className="bg-stage text-paper">
+        <div className="mx-auto grid max-w-[1200px] gap-8 px-5 py-20 sm:px-8 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-8">
+            <p className="text-sm font-semibold text-ember-bright">Kemitraan</p>
+            <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+              Bawa INTAN ke dapur produksi Anda.
+            </h2>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-paper/65">
+              Kami membuka demonstrasi mesin, adopsi UMKM, dan replikasi unit
+              untuk sentra kemplang tunu. Ceritakan kebutuhan produksi Anda.
+            </p>
+          </div>
+          <div className="lg:col-span-4 lg:text-right">
             <Link
-              href="/teknologi"
-              className="px-4 py-2 rounded bg-white/[0.06] hover:bg-white/[0.12] text-white font-mono text-xs border border-white/[0.1] transition"
+              href="/kontak"
+              className="inline-flex min-h-12 items-center justify-center gap-2 bg-paper px-5 py-3 text-sm font-semibold text-graphite transition-colors hover:bg-paper-raised"
             >
-              ENGINEERING SPECS
+              Hubungi tim
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </div>
