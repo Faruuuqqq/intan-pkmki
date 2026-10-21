@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { sampelUjiData, ringkasanUji, competitiveLandscape } from "@/data/sampelUji";
-
+import { facts } from "@/data/site";
+import { TableScroll } from "@/components/ui/TableScroll";
 
 export default function RisetPage() {
   const [hours, setHours] = useState<number>(5);
@@ -15,217 +16,198 @@ export default function RisetPage() {
   const monthlyIntan = maxIntan * 25;
 
   return (
-    <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 space-y-12 bg-[#050505]">
-      {/* Header */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-[11px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-          <span>VALIDATION // SECTION 03</span>
-          <span className="text-neutral-600">/</span>
-          <span className="text-neutral-400">EMPIRICAL BENCHMARKS</span>
+    <div className="surface-paper bg-paper text-graphite">
+      <section className="border-b border-graphite/15">
+        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
+          <p className="text-sm font-semibold text-ember-dark">Riset</p>
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Enam sampel, dan catatan yang tidak disembunyikan.
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-steel-text">
+            Data pemanggangan langsung di atas bara arang, perbandingan dengan
+            metode manual, dan model kapasitas untuk skala UMKM.
+          </p>
         </div>
-        <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-          Data Pengujian 6 Sampel &amp; Model Produktivitas
-        </h1>
-        <p className="text-sm text-neutral-400 max-w-2xl font-sans leading-relaxed">
-          Hasil pencatatan telemetri pemanggangan kemplang tunu (data dokumen teknis &amp; PPT PIMNAS Hal. 22), perbandingan komparatif dengan metode konvensional, serta kalkulator skala ekonomi UMKM.
-        </p>
-      </div>
+      </section>
 
-      {/* Summary Metrics Banner */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="industrial-card rounded p-4 space-y-1">
-          <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">MEAN CYCLE DURATION</div>
-          <div className="font-display font-bold text-2xl text-white tabular-numbers">
-            {ringkasanUji.rataWaktu} <span className="text-xs font-mono font-normal text-neutral-400">SEC</span>
-          </div>
-          <div className="text-[11px] font-mono text-neutral-400">Window: {ringkasanUji.rentangWaktu}</div>
-        </div>
-
-        <div className="industrial-card rounded p-4 space-y-1">
-          <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">MEAN OPERATING TEMP</div>
-          <div className="font-display font-bold text-2xl text-[#ff5500] tabular-numbers">
-            {ringkasanUji.rataSuhu} <span className="text-xs font-mono font-normal text-neutral-400">°C</span>
-          </div>
-          <div className="text-[11px] font-mono text-neutral-400">Setpoint: {ringkasanUji.rentangSuhuEvaluasi}</div>
-        </div>
-
-        <div className="industrial-card rounded p-4 space-y-1">
-          <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">ROAST UNIFORMITY</div>
-          <div className="font-display font-bold text-2xl text-emerald-400 tabular-numbers">
-            {ringkasanUji.keseragaman}
-          </div>
-          <div className="text-[11px] font-mono text-neutral-400">Defect Target: {ringkasanUji.defectRate}</div>
-        </div>
-
-        <div className="industrial-card rounded p-4 space-y-1">
-          <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">5-HR STRESS TEST</div>
-          <div className="font-display font-bold text-2xl text-sky-400 tabular-numbers">
-            PASS
-          </div>
-          <div className="text-[11px] font-mono text-neutral-400">ECU Temp: {ringkasanUji.suhuEcu}</div>
-        </div>
-      </div>
-
-      {/* Laboratory Measurement Table */}
-      <div className="industrial-panel rounded-lg p-4 sm:p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
-          <div>
-            <div className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-              MEASUREMENT LOG // 6-SAMPLE CHARCOAL ROASTING TRIAL
+      <section className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8">
+        <dl className="grid grid-cols-2 gap-6 border-y border-graphite/20 py-6 sm:grid-cols-4">
+          {[
+            ["Rata-rata siklus", `${ringkasanUji.rataWaktu.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} detik`, ringkasanUji.rentangWaktu],
+            ["Rata-rata suhu", `${ringkasanUji.rataSuhu.toLocaleString("id-ID", { maximumFractionDigits: 2 })} °C`, `Setpoint ${ringkasanUji.rentangSuhuEvaluasi}`],
+            ["Keseragaman", ringkasanUji.keseragaman, `Cacat ${ringkasanUji.defectRate}`],
+            ["Uji kontinu", "Lulus", ringkasanUji.ujiKontinu],
+          ].map(([label, value, note], index) => (
+            <div key={label} className={index > 0 ? "sm:border-l sm:border-graphite/15 sm:pl-6" : ""}>
+              <dt className="text-xs text-steel-text">{label}</dt>
+              <dd className="mt-1 font-display text-2xl font-semibold tabular-numbers">{value}</dd>
+              <dd className="mt-1 text-xs text-steel-text">{note}</dd>
             </div>
-            <p className="text-xs text-neutral-400 font-sans mt-0.5">Pengujian pemanggangan langsung kemplang tunu di atas bara arang aktif.</p>
-          </div>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold self-start sm:self-auto">
-            100% PASS RATE
-          </span>
-        </div>
+          ))}
+        </dl>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse font-mono min-w-[580px]">
-            <thead>
-              <tr className="border-b border-white/[0.08] text-neutral-400 uppercase tracking-wider">
-                <th className="py-2.5 px-3">SAMPLE ID</th>
-                <th className="py-2.5 px-3">STATUS</th>
-                <th className="py-2.5 px-3">CYCLE TIME</th>
-                <th className="py-2.5 px-3">CHAMBER TEMP</th>
-                <th className="py-2.5 px-3 font-sans">SYSTEM BEHAVIOR / OBSERVATION</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {sampelUjiData.map((item) => (
-                <tr key={item.id} className="hover:bg-white/[0.02] transition">
-                  <td className="py-3 px-3 text-white font-bold">BATCH_0{item.id}</td>
-                  <td className="py-3 px-3">
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-neutral-200 tabular-numbers">{item.waktu} SEC</td>
-                  <td className="py-3 px-3 tabular-numbers">
-                    <span className={item.suhu >= 600 ? "text-rose-400 font-bold" : "text-neutral-300"}>
-                      {item.suhu} °C {item.suhu >= 600 && "[CUT-OFF]"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 font-sans text-neutral-300">{item.keterangan}</td>
+        <div className="mt-12">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-semibold text-ember-dark">Log pengukuran</p>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+                Uji pemanggangan 6 sampel.
+              </h2>
+            </div>
+            <p className="text-xs text-steel-text">6 dari 6 sampel matang · data dokumen teknis</p>
+          </div>
+
+          <TableScroll className="mt-6" label="Tabel hasil pengujian enam sampel">
+            <table className="w-full min-w-[680px] border-collapse text-left text-sm">
+              <caption className="sr-only">
+                Hasil pengujian enam sampel kemplang tunu, termasuk waktu siklus, suhu, dan catatan.
+              </caption>
+              <thead>
+                <tr className="border-b border-graphite/25 text-xs text-steel-text">
+                  <th scope="col" className="py-3 pr-4 font-medium">Batch</th>
+                  <th scope="col" className="py-3 pr-4 font-medium">Status</th>
+                  <th scope="col" className="py-3 pr-4 font-medium">Waktu</th>
+                  <th scope="col" className="py-3 pr-4 font-medium">Suhu</th>
+                  <th scope="col" className="py-3 font-medium">Catatan</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-graphite/10">
+                {sampelUjiData.map((item) => {
+                  const warmup = item.suhu < 550;
+                  const cutoff = item.suhu > 600;
+                  return (
+                    <tr key={item.id}>
+                      <td className="py-3.5 pr-4 font-medium tabular-numbers">
+                        {String(item.id).padStart(2, "0")}
+                      </td>
+                      <td className="py-3.5 pr-4">
+                        <span className="inline-flex items-center gap-2 text-xs font-medium">
+                          <span className="h-1.5 w-1.5 bg-ember-dark" aria-hidden="true" />
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 pr-4 tabular-numbers">{item.waktu} detik</td>
+                      <td className={`py-3.5 pr-4 tabular-numbers ${warmup || cutoff ? "font-semibold text-ember-dark" : ""}`}>
+                        {item.suhu.toLocaleString("id-ID", { maximumFractionDigits: 2 })} °C
+                        {warmup && <span className="ml-2 text-xs font-normal text-steel-text">di bawah setpoint</span>}
+                        {cutoff && <span className="ml-2 text-xs font-normal text-steel-text">cut-off</span>}
+                      </td>
+                      <td className="py-3.5 text-steel-text">{item.keterangan}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </TableScroll>
+          <p className="mt-4 max-w-3xl text-xs leading-relaxed text-steel-text">
+            Setpoint operasi 550–600 °C. Sampel 1–3 berada di bawah setpoint:
+            sampel 1–2 masih pemanasan awal, sampel 3 tetap matang merata pada
+            540,1 °C. Sampel 4 melewati 600 °C dan memicu cut-off sebelum
+            kembali stabil. Rata-rata 547,72 °C karena tiga sampel bawah setpoint
+            tersebut.
+          </p>
         </div>
-      </div>
+      </section>
 
-      {/* UMKM Operational Model Calculator */}
-      <div className="industrial-panel rounded-lg p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
-          <div className="space-y-1">
-            <div className="text-xs font-mono font-bold text-[#ff5500] uppercase tracking-wider">
-              OPERATIONAL THROUGHPUT MODEL
+      <section className="border-t border-graphite/15">
+        <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-semibold text-ember-dark">Kalkulator</p>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Berapa keping dalam satu shift?
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-steel-text">
+                Geser durasi kerja untuk membandingkan kapasitas manual dan
+                INTAN. Estimasi memakai rentang 80–100 keping/jam untuk manual
+                dan 400–420 keping/jam untuk INTAN.
+              </p>
             </div>
-            <h2 className="font-display font-bold text-xl text-white">
-              Kalkulator Simulasi Kapasitas &amp; Penghematan Kerusakan
-            </h2>
-            <p className="text-xs text-neutral-400 font-sans">
-              Geser durasi jam kerja harian untuk melihat perbandingan kapasitas dan estimasi pencegahan produk reject.
+            <div className="text-right">
+              <p className="text-xs text-steel-text">Jam kerja per hari</p>
+              <p className="font-display text-2xl font-semibold tabular-numbers">{hours} jam</p>
+            </div>
+          </div>
+
+          <div className="mt-8 border border-graphite/15 bg-paper-raised p-5 sm:p-8">
+            <div className="flex items-center justify-between text-xs text-steel-text">
+              <span>1 jam</span>
+              <span>4 jam</span>
+              <span>8 jam</span>
+            </div>
+            <input
+              type="range"
+              min={1}
+              max={8}
+              value={hours}
+              onChange={(e) => setHours(parseInt(e.target.value, 10))}
+              aria-label="Jam kerja per hari"
+              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded bg-graphite/20"
+            />
+
+            <div className="mt-8 grid gap-8 border-t border-graphite/15 pt-6 md:grid-cols-2">
+              <div>
+                <h3 className="text-sm font-semibold text-steel-text">Manual</h3>
+                <p className="mt-2 font-display text-3xl font-semibold tabular-numbers">
+                  {minManual.toLocaleString("id-ID")}–{maxManual.toLocaleString("id-ID")}
+                  <span className="ml-2 text-sm font-normal text-steel-text">keping/hari</span>
+                </p>
+                <p className="mt-3 text-sm text-steel-text">
+                  Estimasi reject/gosong (~10%):{" "}
+                  <span className="font-semibold text-graphite">±{manualDefect.toLocaleString("id-ID")} keping</span>
+                </p>
+              </div>
+              <div className="md:border-l md:border-graphite/15 md:pl-8">
+                <h3 className="text-sm font-semibold text-ember-dark">INTAN</h3>
+                <p className="mt-2 font-display text-3xl font-semibold tabular-numbers">
+                  {minIntan.toLocaleString("id-ID")}–{maxIntan.toLocaleString("id-ID")}
+                  <span className="ml-2 text-sm font-normal text-steel-text">keping/hari</span>
+                </p>
+                <p className="mt-3 text-sm text-steel-text">
+                  Proyeksi 25 hari:{" "}
+                  <span className="font-semibold text-graphite">{monthlyIntan.toLocaleString("id-ID")} keping</span>
+                </p>
+              </div>
+            </div>
+            <p className="mt-6 border-t border-graphite/15 pt-4 text-xs leading-relaxed text-steel-text">
+              Estimasi ini bukan jaminan produksi. Faktor adonan, kadar air,
+              dan waktu bongkar-muat tetap memengaruhi hasil aktual.
             </p>
           </div>
-          <div className="font-mono text-xs bg-white/[0.05] border border-white/[0.1] px-4 py-2 rounded text-right">
-            <span className="text-neutral-400 block text-[10px]">DAILY WORK HOURS:</span>
-            <span className="text-white font-bold text-base tabular-numbers">{hours} HRS / DAY</span>
-          </div>
         </div>
+      </section>
 
-        {/* Range Slider */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-[11px] font-mono text-neutral-400">
-            <span>1 HOUR</span>
-            <span>4 HOURS</span>
-            <span>8 HOURS (FULL SHIFT)</span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={8}
-            value={hours}
-            onChange={(e) => setHours(parseInt(e.target.value, 10))}
-            className="w-full h-1.5 bg-neutral-800 rounded appearance-none cursor-pointer"
-          />
-        </div>
-
-        {/* Output Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-          
-          {/* Manual Card */}
-          <div className="industrial-card rounded p-5 space-y-3 border-l-2 border-l-rose-500">
-            <div className="text-[10px] font-mono text-rose-400 uppercase tracking-wider font-bold">
-              CONVENTIONAL MANUAL PRODUCTION
-            </div>
-            <div className="space-y-1">
-              <span className="text-xs text-neutral-400 font-mono">DAILY YIELD:</span>
-              <div className="font-display font-bold text-2xl text-white tabular-numbers">
-                {minManual.toLocaleString("id-ID")} – {maxManual.toLocaleString("id-ID")}{" "}
-                <span className="text-xs font-mono font-normal text-neutral-400">PCS / DAY</span>
-              </div>
-            </div>
-            <div className="pt-2 border-t border-white/[0.06] text-xs font-mono text-rose-300">
-              EST. REJECT / GOSONG (~10%): <strong className="text-white tabular-numbers">~{manualDefect.toLocaleString("id-ID")} pcs</strong>
-            </div>
-          </div>
-
-          {/* INTAN Card */}
-          <div className="industrial-card rounded p-5 space-y-3 border-l-2 border-l-[#ff5500]">
-            <div className="text-[10px] font-mono text-[#ff5500] uppercase tracking-wider font-bold">
-              INTAN AUTOMATED PRODUCTION
-            </div>
-            <div className="space-y-1">
-              <span className="text-xs text-neutral-400 font-mono">DAILY YIELD:</span>
-              <div className="font-display font-bold text-2xl text-white tabular-numbers">
-                {minIntan.toLocaleString("id-ID")} – {maxIntan.toLocaleString("id-ID")}{" "}
-                <span className="text-xs font-mono font-normal text-neutral-400">PCS / DAY</span>
-              </div>
-            </div>
-            <div className="pt-2 border-t border-white/[0.06] flex justify-between text-xs font-mono text-neutral-300">
-              <span>MONTHLY PROJECTION (25 DAYS):</span>
-              <strong className="text-emerald-400 tabular-numbers">{monthlyIntan.toLocaleString("id-ID")} PCS</strong>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="text-xs font-mono text-neutral-400 bg-white/[0.02] p-3 rounded border border-white/[0.04]">
-          ANALYSIS // Mesin INTAN memberikan peningkatan kapasitas produksi neto sebesar &gt;400% sekaligus membatasi risiko kerugian akibat kemplang gosong melengkung hingga di bawah 5%.
-        </div>
-      </div>
-
-      {/* Comparative Specification Landscape */}
-      <div className="industrial-panel rounded-lg p-4 sm:p-6 space-y-4">
-        <div className="text-xs font-mono font-bold text-white uppercase tracking-wider border-b border-white/[0.08] pb-3">
-          COMPARATIVE BENCHMARK // MANUAL VS INTAN MK-II
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse font-sans min-w-[520px]">
-            <thead>
-              <tr className="border-b border-white/[0.08] text-[10px] font-mono text-neutral-400 uppercase tracking-wider">
-                <th className="py-2.5 px-3">EVALUATION METRIC</th>
-                <th className="py-2.5 px-3">CONVENTIONAL MANUAL</th>
-                <th className="py-2.5 px-3 text-[#ff5500] font-bold">INTAN SPECIFICATION</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04] text-xs">
-              {competitiveLandscape.map((row, idx) => (
-                <tr key={idx} className="hover:bg-white/[0.02] transition">
-                  <td className="py-3 px-3 font-mono font-medium text-white">{row.parameter}</td>
-                  <td className="py-3 px-3 text-neutral-400">{row.konvensional}</td>
-                  <td className="py-3 px-3 text-neutral-200 font-medium">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#ff5500] mr-2" />
-                    {row.intan}
-                  </td>
+      <section className="border-t border-graphite/15">
+        <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+          <p className="text-sm font-semibold text-ember-dark">Perbandingan</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            Manual dan INTAN, bersebelahan.
+          </h2>
+          <TableScroll className="mt-6" label="Tabel perbandingan manual dan INTAN">
+            <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-graphite/25 text-xs text-steel-text">
+                  <th scope="col" className="py-3 pr-4 font-medium">Metrik</th>
+                  <th scope="col" className="py-3 pr-4 font-medium">Manual</th>
+                  <th scope="col" className="py-3 font-medium text-ember-dark">INTAN</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-graphite/10">
+                {competitiveLandscape.map((row) => (
+                  <tr key={row.parameter}>
+                    <th scope="row" className="py-3.5 pr-4 text-left font-medium">{row.parameter}</th>
+                    <td className="py-3.5 pr-4 text-steel-text">{row.konvensional}</td>
+                    <td className="py-3.5 text-graphite">{row.intan}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+          <p className="mt-4 text-xs text-steel-text">
+            Kapasitas INTAN {facts.capacity}; siklus {facts.cycle} untuk enam keping.
+          </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
