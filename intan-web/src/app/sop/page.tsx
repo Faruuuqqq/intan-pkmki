@@ -1,145 +1,164 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { AlertOctagon, Check, ShieldAlert, X } from "lucide-react";
 import { sopSteps, emergencySteps, dosAndDonts, type SopPhase } from "@/data/sopData";
-import { AlertOctagon, Check, X, ShieldAlert } from "lucide-react";
+
+const phases = [
+  { key: "all", label: "Semua", count: sopSteps.length },
+  { key: "fase1", label: "Persiapan", count: sopSteps.filter((s) => s.phase === "fase1").length },
+  { key: "fase2", label: "Bahan bakar", count: sopSteps.filter((s) => s.phase === "fase2").length },
+  { key: "fase3", label: "Pemanggangan", count: sopSteps.filter((s) => s.phase === "fase3").length },
+  { key: "fase4", label: "Pasca-produksi", count: sopSteps.filter((s) => s.phase === "fase4").length },
+] as const;
+
+const phaseTitles = {
+  fase1: "Persiapan & instalasi",
+  fase2: "Bahan bakar",
+  fase3: "Pemanggangan",
+  fase4: "Pasca-produksi",
+} as const;
 
 export default function SopPage() {
   const [filterPhase, setFilterPhase] = useState<SopPhase>("all");
 
   const filteredSteps =
-    filterPhase === "all" ? sopSteps : sopSteps.filter((s) => s.phase === filterPhase);
+    filterPhase === "all" ? sopSteps : sopSteps.filter((step) => step.phase === filterPhase);
 
-  const phases = [
-    { key: "all", label: "ALL // 12 STEPS" },
-    { key: "fase1", label: "PHASE 01 // SETUP" },
-    { key: "fase2", label: "PHASE 02 // CHARCOAL" },
-    { key: "fase3", label: "PHASE 03 // ROASTING" },
-    { key: "fase4", label: "PHASE 04 // POST-OP" },
-  ] as const;
+  const groups = (["fase1", "fase2", "fase3", "fase4"] as const)
+    .map((phase) => ({
+      phase,
+      steps: filteredSteps.filter((step) => step.phase === phase),
+    }))
+    .filter((group) => group.steps.length > 0);
 
   return (
-    <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 space-y-12 bg-[#050505]">
-      {/* Header */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-[11px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-          <span>OPERATIONS // MANUAL 9.2</span>
-          <span className="text-neutral-600">/</span>
-          <span className="text-neutral-400">QR CODE DIRECT ACCESS</span>
+    <div className="surface-paper bg-paper text-graphite">
+      <section className="border-b border-graphite/15">
+        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
+          <p className="text-sm font-semibold text-ember-dark">SOP</p>
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Dua belas langkah, satu urutan.
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-steel-text">
+            Prosedur operasional dan protokol keselamatan untuk area semi-outdoor.
+            Baca seluruh bagian sebelum menyalakan mesin.
+          </p>
         </div>
-        <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-          Standard Operating Procedure (SOP) &amp; Protokol K3
-        </h1>
-        <p className="text-sm text-neutral-400 max-w-2xl font-sans leading-relaxed">
-          Buku saku digital 12 tahapan operasional resmi mesin INTAN (Dokumen Teknis Bab IV). Panduan penanganan bahan bakar, kalibrasi termal, dan kepatuhan keselamatan kerja di area semi-outdoor.
-        </p>
-      </div>
+      </section>
 
-      {/* Phase Segmented Selector */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none border-b border-white/[0.08] pb-3 font-mono text-xs">
-        {phases.map((p) => {
-          const active = filterPhase === p.key;
-          return (
-            <button
-              key={p.key}
-              onClick={() => setFilterPhase(p.key as SopPhase)}
-              className={`px-3.5 py-1.5 rounded text-xs font-bold shrink-0 transition ${
-                active
-                  ? "bg-white text-black"
-                  : "bg-white/[0.04] text-neutral-400 hover:text-white hover:bg-white/[0.08] border border-white/[0.06]"
-              }`}
-            >
-              {p.label}
-            </button>
-          );
-        })}
-      </div>
+      <section className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8">
+        <div className="flex flex-wrap gap-2 border-b border-graphite/20 pb-3" role="group" aria-label="Filter fase SOP">
+          {phases.map((phase) => {
+            const active = filterPhase === phase.key;
+            return (
+              <button
+                key={phase.key}
+                type="button"
+                onClick={() => setFilterPhase(phase.key as SopPhase)}
+                aria-pressed={active}
+                className={`min-h-11 shrink-0 border px-3.5 py-2 text-sm font-medium transition ${
+                  active
+                    ? "border-graphite bg-graphite text-paper"
+                    : "border-graphite/20 text-steel-text hover:border-graphite/50 hover:text-graphite"
+                }`}
+              >
+                {phase.label}
+                <span className={active ? "ml-2 text-paper/70" : "ml-2 text-steel-text"}>{phase.count}</span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* 12 Steps Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredSteps.map((step) => (
-          <div key={step.step} className="industrial-panel rounded-lg p-5 flex flex-col justify-between space-y-4">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-[11px] font-mono border-b border-white/[0.06] pb-2">
-                <span className="text-[#ff5500] font-bold">
-                  STEP // {step.step.toString().padStart(2, "0")}
+        <div className="mt-10 space-y-12">
+          {groups.map((group) => (
+            <section key={group.phase} aria-labelledby={`judul-${group.phase}`}>
+              <div className="flex flex-col justify-between gap-1 border-b border-graphite/25 pb-3 sm:flex-row sm:items-baseline">
+                <h2 id={`judul-${group.phase}`} className="font-display text-xl font-semibold tracking-tight">
+                  {phaseTitles[group.phase]}
+                </h2>
+                <span className="text-xs text-steel-text">
+                  {group.steps.length} langkah
                 </span>
-                <span className="text-neutral-500 uppercase tracking-wider">{step.phaseName}</span>
               </div>
-              <h2 className="font-display font-bold text-white text-base tracking-tight">{step.title}</h2>
-              <p className="text-xs text-neutral-400 font-sans leading-relaxed">{step.desc}</p>
-            </div>
-            <div className="pt-2 border-t border-white/[0.04] text-[10px] font-mono text-neutral-500 flex justify-between">
-              <span>BAB IV SEC 4.2</span>
-              <span>COMPLIANCE VERIFIED</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* K3 Semi-Outdoor Protocol Banner */}
-      <div className="p-6 rounded-lg bg-[#0d0d0d] border border-amber-500/30 space-y-3">
-        <div className="flex items-center gap-3">
-          <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0" />
-          <h2 className="font-display font-bold text-base text-white">
-            Persyaratan Keselamatan Kerja (K3) Lingkungan Semi-Outdoor
-          </h2>
-        </div>
-        <p className="text-xs sm:text-sm text-neutral-300 font-sans leading-relaxed">
-          Pengoperasian mesin INTAN <strong>wajib dilakukan di area semi-outdoor</strong> (ruang berventilasi terbuka lebar beratap). Langkah ini mengeliminasi risiko penumpukan gas Karbon Monoksida (CO) dari bara arang serta melindungi modul elektronik mikrokontroler dari cipratan air hujan. Pastikan suplai daya PLN AC 220V terpasang kabel pentanahan (*grounding arde*).
-        </p>
-      </div>
-
-      {/* Emergency Protocol & Do's/Don'ts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* 5 Emergency Shutdown Steps */}
-        <div className="industrial-panel rounded-lg p-6 space-y-4">
-          <div className="flex items-center gap-2 text-rose-400 font-mono text-xs font-bold border-b border-white/[0.08] pb-3">
-            <AlertOctagon className="w-4 h-4" />
-            <span>EMERGENCY SHUTDOWN PROTOCOL (5 STEPS)</span>
-          </div>
-          <ol className="space-y-3 text-xs text-neutral-300 font-sans">
-            {emergencySteps.map((step, idx) => (
-              <li key={idx} className="flex items-start gap-3 p-3 rounded bg-[#080808] border border-white/[0.04]">
-                <span className="font-mono text-rose-400 font-bold text-xs shrink-0">
-                  0{idx + 1}.
-                </span>
-                <span>{step}</span>
-              </li>
-            ))}
-          </ol>
+              <ol>
+                {group.steps.map((step) => (
+                  <li key={step.step} className="grid gap-4 border-b border-graphite/10 py-6 sm:grid-cols-[3.5rem_1fr] sm:gap-6">
+                    <span className="font-display text-2xl font-semibold text-ember-dark tabular-numbers">
+                      {String(step.step).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <h3 className="font-display text-lg font-semibold tracking-tight">{step.title}</h3>
+                      <p className="mt-1.5 max-w-3xl text-base leading-relaxed text-steel-text">{step.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
         </div>
 
-        {/* Operating Do's & Don'ts */}
-        <div className="industrial-panel rounded-lg p-6 space-y-4">
-          <div className="text-neutral-300 font-mono text-xs font-bold border-b border-white/[0.08] pb-3">
-            OPERATIONAL COMPLIANCE CHECKLIST
+        <div className="mt-12 flex gap-4 border-l-2 border-ember-dark bg-paper-raised p-5">
+          <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-ember-dark" aria-hidden="true" />
+          <div>
+            <h2 className="font-display text-lg font-semibold tracking-tight">
+              Wajib semi-outdoor
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-steel-text">
+              Pengoperasian wajib di area berventilasi terbuka lebar dan beratap.
+              Ini mengurangi penumpukan karbon monoksida dari bara dan melindungi
+              modul elektronik dari cipratan air. Pastikan stopkontak 220 V
+              memiliki pentanahan yang baik.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-graphite/15">
+        <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+          <div className="bg-stage p-5 text-paper sm:p-8">
+            <div className="flex items-center gap-2 border-b border-paper/10 pb-4">
+              <AlertOctagon className="h-5 w-5 text-ember-bright" aria-hidden="true" />
+              <h2 className="font-display text-xl font-semibold tracking-tight">
+                Matikan mesin: lima langkah
+              </h2>
+            </div>
+            <ol className="mt-5 divide-y divide-paper/10">
+              {emergencySteps.map((step, index) => (
+                <li key={step} className="grid grid-cols-[2rem_1fr] gap-3 py-4 text-sm leading-relaxed text-paper/75">
+                  <span className="text-xs font-semibold text-ember-bright tabular-numbers">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
           </div>
 
-          <div className="space-y-4 text-xs font-sans">
-            <div className="space-y-2">
-              <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase block tracking-wider">
-                MANDATORY ACTIONS (DO&apos;S):
-              </span>
-              <ul className="space-y-1.5 text-neutral-300">
-                {dosAndDonts.dos.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="mt-10 grid gap-8 md:grid-cols-2">
+            <div>
+              <h2 className="flex items-center gap-2 border-b border-graphite/20 pb-3 font-display text-lg font-semibold tracking-tight">
+                <Check className="h-4 w-4 text-ember-dark" aria-hidden="true" />
+                Lakukan
+              </h2>
+              <ul className="mt-4 space-y-3">
+                {dosAndDonts.dos.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm leading-relaxed text-steel-text">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-ember-dark" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
-
-            <div className="space-y-2 border-t border-white/[0.06] pt-3">
-              <span className="text-[11px] font-mono text-rose-400 font-bold uppercase block tracking-wider">
-                STRICTLY PROHIBITED (DON&apos;TS):
-              </span>
-              <ul className="space-y-1.5 text-neutral-300">
-                {dosAndDonts.donts.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <X className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+            <div>
+              <h2 className="flex items-center gap-2 border-b border-graphite/20 pb-3 font-display text-lg font-semibold tracking-tight">
+                <X className="h-4 w-4 text-ember-dark" aria-hidden="true" />
+                Jangan
+              </h2>
+              <ul className="mt-4 space-y-3">
+                {dosAndDonts.donts.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm leading-relaxed text-steel-text">
+                    <X className="mt-0.5 h-4 w-4 shrink-0 text-ember-dark" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -147,8 +166,7 @@ export default function SopPage() {
             </div>
           </div>
         </div>
-
-      </div>
+      </section>
     </div>
   );
 }
