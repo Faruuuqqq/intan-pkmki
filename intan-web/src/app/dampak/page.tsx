@@ -1,133 +1,132 @@
-import React from "react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { mediaPublikasi, mitraMou, diversifikasiProduk } from "@/data/timData";
-import { socials } from "@/data/site";
-import { ArrowUpRight, Handshake, Newspaper } from "lucide-react";
+import { socials, videoId } from "@/data/site";
 
 export default function DampakPage() {
   return (
-    <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 space-y-12 bg-[#050505]">
-      {/* Header */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-[11px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-          <span>MEDIA &amp; DEPLOYMENT // SECTION 07</span>
-          <span className="text-neutral-600">/</span>
-          <span className="text-neutral-400">QR CODE 9.1 DIRECT ACCESS</span>
+    <div className="bg-stage text-paper">
+      <section className="border-b border-paper/10">
+        <div className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
+          <p className="text-sm text-steel">Dampak</p>
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Lihat mesinnya bekerja sebelum percaya angkanya.
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-paper/65">
+            Rekaman pengujian langsung di atas bara arang, liputan media, dan
+            kesepakatan dengan mitra UMKM.
+          </p>
         </div>
-        <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-          Dokumentasi Uji Coba, Liputan Media &amp; Kemitraan UMKM
-        </h1>
-        <p className="text-sm text-neutral-400 max-w-2xl font-sans leading-relaxed">
-          Demonstrasi visual skala penuh operasional INTAN (Tujuan QR Bab IX.1), arsip publikasi 12 media massa, perjanjian kerja sama (MoU) kemitraan hilirisasi, dan modul diversifikasi komoditas panggang.
-        </p>
-      </div>
+      </section>
 
-      {/* Embedded Video Demo Section (Target QR 9.1) */}
-      <div id="video" className="industrial-panel rounded-lg p-6 sm:p-8 space-y-5 border-t-2 border-t-[#ff5500]">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
-          <div className="space-y-1">
-            <div className="text-[10px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-              VIDEO DEMONSTRATION // DOKUMEN TEKNIS BAB IX (SEC 9.1)
-            </div>
-            <h2 className="font-display font-bold text-xl text-white">
-              Demonstrasi Operasional Pemanggangan Kemplang Tunu
-            </h2>
-            <p className="text-xs text-neutral-400 font-sans">
-              Rekaman pengujian pemanggangan langsung di atas bara arang aktif dengan mekanisme pembalik 6 servo.
-            </p>
+      <section id="video" className="mx-auto max-w-[1200px] px-5 py-10 sm:px-8 sm:py-14">
+        <div className="overflow-hidden border border-paper/15 bg-graphite">
+          <div className="relative aspect-video w-full">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title="Video demonstrasi INTAN PKM-KI Unpad"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+              className="absolute inset-0 h-full w-full"
+            />
           </div>
+        </div>
+        <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <p className="max-w-2xl text-sm leading-relaxed text-paper/65">
+            Uji pemanggangan kemplang tunu: enam keping, bara arang aktif, dan
+            mekanisme pembalik servo.
+          </p>
           <a
             href={socials.youtube}
             target="_blank"
-            rel="noreferrer"
-            className="px-3.5 py-1.5 rounded bg-white text-black font-mono font-bold text-xs hover:bg-neutral-200 transition inline-flex items-center gap-1.5 shrink-0"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-ember-bright hover:text-paper"
           >
-            <span>WATCH ON YOUTUBE</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            Tonton di YouTube
+            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </a>
         </div>
+      </section>
 
-        {/* 16:9 Iframe */}
-        <div className="relative w-full aspect-video rounded overflow-hidden border border-white/[0.1] bg-black">
-          <iframe
-            src="https://www.youtube.com/embed/UZ4ZYx_NoIY"
-            title="Video Demonstrasi INTAN PKM-KI Unpad"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-          />
-        </div>
-      </div>
-
-      {/* 12 Media Publications Press Clipping Directory */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
-          <div>
-            <div className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Newspaper className="w-4 h-4 text-neutral-400" /> PRESS ARCHIVE // 12 MEDIA COVERAGE CHANNELS
-            </div>
-            <p className="text-xs text-neutral-400 font-sans mt-0.5">Liputan publikasi media massa nasional dan regional (PPT Slide 27).</p>
+      <div className="surface-paper bg-paper text-graphite">
+        <section className="border-t border-graphite/15">
+          <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+            <p className="text-sm font-semibold text-ember-dark">Liputan</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Yang bisa dibaca langsung.
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-steel-text">
+              Tautan yang tersedia dibuka di kanal masing-masing. Arsip cetak
+              lain dapat diminta ke tim.
+            </p>
+            <ul className="mt-6 border-t border-graphite/20">
+              {mediaPublikasi.map((media) => (
+                <li key={media.name}>
+                  <a
+                    href={media.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-4 border-b border-graphite/15 py-4"
+                  >
+                    <span>
+                      <span className="block font-display text-lg font-semibold tracking-tight">{media.name}</span>
+                      <span className="mt-0.5 block text-xs text-steel-text">{media.tag}</span>
+                    </span>
+                    <ExternalLink className="h-4 w-4 shrink-0 text-steel-text transition-colors group-hover:text-graphite" aria-hidden="true" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
-          <span className="text-[10px] font-mono text-neutral-400">12 SOURCES VERIFIED</span>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {mediaPublikasi.map((m, idx) => (
-            <div key={idx} className="industrial-card rounded p-3.5 space-y-1">
-              <span className="text-[10px] font-mono text-[#ff5500] uppercase block">{m.tag}</span>
-              <div className="font-display font-bold text-sm text-white tracking-tight">{m.name}</div>
-              <div className="text-[10px] font-mono text-neutral-500">COVERAGE ARCHIVED</div>
+        <section className="border-t border-graphite/15">
+          <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+            <p className="text-sm font-semibold text-ember-dark">Kemitraan</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Dua mitra, dua peran.
+            </h2>
+            <div className="mt-6 border-t border-graphite/20">
+              {mitraMou.map((mitra) => (
+                <article key={mitra.name} className="grid gap-4 border-b border-graphite/15 py-7 md:grid-cols-12 md:gap-8">
+                  <div className="md:col-span-5">
+                    <p className="text-xs font-semibold text-ember-dark">{mitra.peran}</p>
+                    <h3 className="mt-2 font-display text-2xl font-semibold tracking-tight">{mitra.name}</h3>
+                    <p className="mt-1 text-sm text-steel-text">{mitra.pic}</p>
+                  </div>
+                  <div className="md:col-span-7">
+                    <p className="text-sm leading-relaxed text-steel-text">{mitra.deskripsi}</p>
+                    <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-graphite">
+                      <span className="h-1.5 w-1.5 bg-ember-dark" aria-hidden="true" />
+                      {mitra.status}
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </section>
 
-      {/* MoU Partners */}
-      <div className="space-y-4">
-        <div className="text-xs font-mono font-bold text-white uppercase tracking-wider border-b border-white/[0.08] pb-3 flex items-center gap-2">
-          <Handshake className="w-4 h-4 text-emerald-400" /> DEPLOYMENT PARTNERSHIPS // MEMORANDUM OF UNDERSTANDING (MOU)
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {mitraMou.map((mitra, idx) => (
-            <div key={idx} className="industrial-panel rounded-lg p-6 space-y-3 flex flex-col justify-between">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-[#ff5500] font-bold">{mitra.peran.toUpperCase()}</span>
-                  <span className="text-emerald-400 font-semibold">{mitra.status}</span>
-                </div>
-                <h3 className="font-display font-extrabold text-xl text-white tracking-tight">{mitra.name}</h3>
-                <div className="text-xs font-mono text-neutral-500">REPRESENTATIVE: {mitra.pic}</div>
-                <p className="text-xs text-neutral-300 font-sans leading-relaxed pt-2 border-t border-white/[0.06]">
-                  {mitra.deskripsi}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Commodity Diversification Modules */}
-      <div className="industrial-panel rounded-lg p-6 sm:p-8 space-y-5">
-        <div className="border-b border-white/[0.08] pb-3 space-y-1">
-          <span className="text-[10px] font-mono text-[#ff5500] uppercase tracking-widest font-bold">
-            COMMODITY ADAPTABILITY
-          </span>
-          <h2 className="font-display font-bold text-xl text-white">
-            Peluang Diversifikasi Komoditas Panggang Nusantara
-          </h2>
-          <p className="text-xs text-neutral-400 font-sans">
-            Sistem penjepit modular INTAN dapat diadaptasikan untuk komoditas panggang lain melalui penyesuaian kisi capitan.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {diversifikasiProduk.map((item, idx) => (
-            <div key={idx} className="industrial-card rounded p-4 space-y-1.5">
-              <div className="text-xs font-mono font-bold text-white uppercase">{item.name}</div>
-              <p className="text-xs text-neutral-400 font-sans leading-relaxed">{item.deskripsi}</p>
-            </div>
-          ))}
-        </div>
+        <section className="border-t border-graphite/15">
+          <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+            <p className="text-sm font-semibold text-ember-dark">Diversifikasi</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Bukan hanya kemplang.
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-steel-text">
+              Penjepit modular dapat disesuaikan untuk komoditas panggang lain.
+              Ini membuka penggunaan mesin di luar musim kemplang.
+            </p>
+            <ul className="mt-6 grid gap-6 border-t border-graphite/20 pt-6 md:grid-cols-3">
+              {diversifikasiProduk.map((item) => (
+                <li key={item.name}>
+                  <h3 className="font-display text-lg font-semibold tracking-tight">{item.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-steel-text">{item.deskripsi}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
       </div>
     </div>
   );
