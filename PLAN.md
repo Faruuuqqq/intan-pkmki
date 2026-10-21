@@ -1,6 +1,6 @@
 # Rencana Perbaikan Frontend INTAN
 
-Status: **draft — menunggu keputusan**
+Status: **diterapkan** · verifikasi visual 1440/768/390
 Tanggal: 21 Oktober 2026
 Basis: audit `frontend-design`, screenshot Playwright desktop/mobile, dan aset `alat/*.png`
 
@@ -37,11 +37,11 @@ Mesin stainless dari `alat/` (PNG transparan) menjadi bintang di panggung; dokum
 | # | Keputusan | Opsi | Rekomendasi |
 |---|---|---|---|
 | D1 | Arah visual | A. Panggung + lembar (dua permukaan) · B. Semua gelap, dirapikan · C. Semua terang | **A** |
-| D2 | Nomor HKI | README: `EC00202621458` · situs: `001429332` | Pakai satu sumber; perlu konfirmasi mana yang benar |
-| D3 | Form kontak | A. `mailto:` terisi otomatis · B. backend (Formspree/Resend) · C. hapus form, tampilkan email | **A** dulu; B kalau perlu |
+| D2 | Nomor HKI | Sumber lama sempat berbeda | Pakai satu sumber publik: `001429332`; nomor lain hanya di arsip |
+| D3 | Form kontak | A. `mailto:` terisi otomatis · B. backend (Formspree/Resend) · C. hapus form, tampilkan email | **A**; tanpa state sukses palsu |
 | D4 | 3D di homepage | A. tidak ada, 3D hanya di `/produk` · B. ada tapi di bawah video, lazy | **A** |
-| D5 | Setpoint suhu | `550–600°C` vs `560–640°C` di `/riset` | `550–600°C`; data di luar rentang diberi catatan |
-| D6 | Aset | Boleh pakai 3 render `alat/` + video YouTube? | Perlu konfirmasi kepemilikan/izin |
+| D5 | Setpoint suhu | `550–600°C` vs `560–640°C` di `/riset` | `550–600 °C`; sampel di luar rentang diberi catatan |
+| D6 | Aset | Boleh pakai 3 render `alat/` + video YouTube? | Dipakai; render publik dikonversi ke WebP transparan |
 | D7 | Baseline git | Repo belum punya commit | Commit awal sebelum perubahan |
 
 Kalau D1–D4 tidak dikunci, pekerjaan bisa bercabang dan mengulang.

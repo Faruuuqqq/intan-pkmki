@@ -1,81 +1,84 @@
-# INTAN — Smart Rotary Roaster
-> **Inovasi Termal Adaptif Nusantara (PKM-KI Universitas Padjadjaran 2026)**  
-> Alat pemanggang kemplang tunu otomatis berbasis mikrokontroler dengan kendali histeresis cerdas.
+# INTAN — Pemanggang Kemplang Tunu
 
----
+> Inovasi Termal Adaptif Nusantara · PKM-KI Universitas Padjadjaran 2026
 
-## 📌 Ringkasan Proyek
-INTAN mentransformasi proses pemanggangan kemplang tunu tradisional dari kapasitas 80–100 keping/jam menjadi **400–420 keping/jam**. Dilengkapi dengan 6 rak penjepit kawat SUS 304 yang berputar 180° otomatis menggunakan 6 motor servo MG996R, sistem kendali histeresis suhu bara (550°C–600°C), serta dual blower keong sentrifugal.
+INTAN memutar enam keping kemplang tunu di atas bara arang dengan kendali suhu
+550–600 °C. Kapasitas 400–420 keping/jam, dengan siklus rata-rata 46,5 detik
+untuk enam keping.
 
-- **Status Teknologi**: TKT Level 8 (Teruji Operasional di Lingkungan UMKM)
-- **Legalitas HKI**: Surat Pencatatan Ciptaan Kemenkumham RI No. **EC00202621458**
-- **Institusi**: Universitas Padjadjaran (Didanai Ditjen Belmawa Kemdiktisaintek)
+- **Status teknologi:** TKT 8 — teruji di lingkungan UMKM.
+- **HKI:** No. `001429332` — Surat Pencatatan Ciptaan Alat Peraga, Kementerian Hukum RI.
+- **Institusi:** Universitas Padjadjaran. Didanai Belmawa Kemdiktisaintek.
+- **Paten sederhana:** dalam proses pemberkasan.
 
----
+## Struktur
 
-## 📂 Struktur Repositori
 ```text
 intan-pkmki/
-├── intan-web/          # Aplikasi web profil & 3D Interactive (Next.js 16, TypeScript, Three.js)
-├── alat/               # Berkas render 3D CAD perangkat (Still 1, Still 2, Still 3)
-├── arsip/              # Dokumen teknis, naskah spesifikasi, dan laporan PKM-KI
-└── .gitignore          # Konfigurasi pengabaian berkas Git
+├── intan-web/          # Situs Next.js 16 + Three.js
+│   ├── public/alat/    # Render WebP transparan + poster video
+│   ├── scripts/        # Regression screenshot Playwright
+│   └── src/
+├── alat/               # Render sumber
+└── arsip/              # Dokumen teknis, PRD, arsip prototipe
 ```
 
----
+## Menjalankan
 
-## 🚀 Cara Menjalankan Website Secara Lokal
+Prasyarat: Node.js 20+.
 
-Pastikan Anda telah menginstal [Node.js](https://nodejs.org/) (versi 18.x atau lebih baru).
+```bash
+cd intan-web
+npm install
+npm run dev
+```
 
-1. **Masuk ke direktori web:**
-   ```bash
-   cd intan-web
-   ```
+Buka `http://localhost:3000`.
 
-2. **Instal dependensi:**
-   ```bash
-   npm install
-   ```
+Build produksi:
 
-3. **Jalankan server pengembangan:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Buka di browser:**
-   Akses [http://localhost:3000](http://localhost:3000)
-
-Untuk memvalidasi build produksi:
 ```bash
 npm run build
+npm start
 ```
 
----
+## Screenshot regresi
 
-## 🛠️ Fitur Utama Website
-- **3D Digital Twin Interaktif (Three.js)**: Model visual skala 1:1 CAD (124 × 30 × 30 cm) dengan fitur aktuasi flip 180°, buka-tutup laci arang, kap servo berengsel, dual blower, dan simulasi cut-off histeresis ≥ 600°C.
-- **Sudut Pandang Kamera Render**: Preset Still 1 (Isometrik), Still 2 (Tampak Atas 1:1), Still 3 (Close-up ECU & Gripper), dan Front/Rear.
-- **Multi-Halaman Komprehensif**: Produk, Teknologi Kendali, Riset & Validasi 6 Sampel, SOP Operasional (QR 9.2), Perawatan & Garansi, Profil Tim & Legalitas, Dampak & MoU Mitra, serta Kontak Kemitraan.
-- **Mobile Responsive**: Dioptimalkan penuh untuk tampilan smartphone dengan navigasi sentuh dan kontrol gestur.
+Jalankan server produksi di port 3000, lalu:
 
----
+```bash
+npm run shots
+```
 
-## 💻 Tech Stack
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Turbopack)
-- **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **3D Engine**: [Three.js](https://threejs.org/)
-- **Icons**: [Lucide React](https://lucide.dev/)
+Hasil ada di `intan-web/.screenshots/` (gitignored). Script memeriksa
+horizontal overflow untuk 1440, 768, dan 390 px serta mencatat console error.
+Gunakan `SHOT_BASE_URL` bila server berjalan di port lain.
 
----
+## Arsitektur halaman
 
-## 👥 Tim Pengembang (PKM-KI 2026)
-- **Ketua Tim**: Irfan Fransisco
-- **Anggota Tim**:
-  1. Iwan Ridwan Ramdani
-  2. M. Rafi Aulia Amrullah
-  3. Daryl Yudhopatria Adinegara
-  4. Achmad Faruq Mahdison
-- **Dosen Pendamping**: Andri Yanto, S.Sos., M.I.Kom.
-- **Afiliasi**: Universitas Padjadjaran
+| Route | Isi |
+|---|---|
+| `/` | Render mesin, video demo, cara kerja, teaser data |
+| `/produk` | Model 3D, tabel spesifikasi, material, gambar teknis |
+| `/teknologi` | Diagram sistem, empat pilar, siklus kendali |
+| `/riset` | Enam sampel, kalkulator kapasitas, benchmark |
+| `/sop` | Timeline 12 langkah, protokol darurat, do/don't |
+| `/perawatan` | Kalibrasi, jadwal, troubleshooting, garansi |
+| `/dampak` | Video, liputan yang tertaut, MoU, diversifikasi |
+| `/tentang` | HKI/TKT, timeline, tim, dosen pendamping |
+| `/kontak` | Email, kanal, form `mailto:` tanpa backend |
+
+## Stack
+
+- Next.js 16 (App Router, Turbopack), React 19, TypeScript
+- Tailwind CSS v4
+- Three.js + `RoomEnvironment` untuk model `/produk`
+- Bricolage Grotesque (display), Source Sans 3 (body), JetBrains Mono (nilai sensor)
+- Lucide React
+
+## Tim
+
+- **Ketua:** Irfan Fransisco
+- **Anggota:** Iwan Ridwan Ramdani, M. Rafi Aulia Amrullah, Daryl Yudhopatria Adinegara, Achmad Faruq Mahdison
+- **Dosen pendamping:** Andri Yanto, S.Sos., M.I.Kom.
+- **Afiliasi:** Fakultas Ilmu Komunikasi — Universitas Padjadjaran
