@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-industrial-black: #050505;
-  --color-industrial-950: #0a0a0a;
-  --color-industrial-900: #121212;
-  --color-industrial-800: #1a1a1a;
-  --color-industrial-700: #262626;
-  --color-industrial-600: #404040;
-  --color-industrial-metal: #8a8d91;
-  --color-accent-orange: #ff5500;
-  --color-accent-amber: #f59e0b;
-  --color-accent-blue: #0284c7;
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-jakarta), system-ui, sans-serif;
+  --color-stage: #141210;
+  --color-stage-raised: #1e1a16;
+  --color-paper: #d8d2c6;
+  --color-paper-raised: #e4dfd5;
+  --color-graphite: #1b1a17;
+  --color-steel: #7c8589;
+  --color-steel-text: #4f585c;
+  --color-ember: #e2542c;
+  --color-ember-bright: #ff6b3d;
+  --color-ember-dark: #a63a0b;
+  --color-dough: #d9b98c;
+  --font-sans: var(--font-source), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
@@ -22,100 +23,71 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #050505;
+  background-color: var(--color-stage);
 }
 
 body {
-  background-color: #050505;
-  color: #ededed;
-  font-family: var(--font-inter), system-ui, sans-serif;
+  background-color: var(--color-stage);
+  color: var(--color-paper);
+  font-family: var(--font-source), system-ui, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  text-wrap: balance;
 }
 
 ::selection {
-  background: #ff5500;
-  color: #000000;
+  background: var(--color-ember);
+  color: var(--color-graphite);
 }
 
-/* Subtle Technical Blueprint Grid */
-.bg-tech-grid {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 32px 32px;
+:focus-visible {
+  outline: 2px solid var(--color-ember-bright);
+  outline-offset: 3px;
 }
 
-.bg-dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+.surface-paper {
+  color-scheme: light;
 }
 
-/* Industrial Panel Surface */
-.industrial-card {
-  background-color: #0d0d0d;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+.surface-paper ::selection {
+  background: var(--color-ember-dark);
+  color: var(--color-paper);
 }
 
-.industrial-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.industrial-panel {
-  background-color: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* LCD Screen - Authentic Character Display */
-.lcd-screen {
-  background: #001220;
-  border: 1px solid #002845;
-  box-shadow: inset 0 0 10px rgba(0, 160, 220, 0.2);
-  color: #38bdf8;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.05em;
-}
-
-/* Precision Hairline Dividers */
-.hairline-b {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hairline-t {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hairline-l {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hairline-r {
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Range Slider - Hardware Style */
-input[type="range"] {
-  accent-color: #ff5500;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 18px;
-  width: 18px;
-  border-radius: 2px;
-  background: #ff5500;
-  border: 2px solid #ffffff;
-  cursor: pointer;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-}
-
-/* Tabular figures for telemetry & numbers */
 .tabular-numbers {
   font-variant-numeric: tabular-nums;
 }
 
-/* Hide scrollbar for horizontal swipeable tabs on mobile */
+.hairline {
+  border-color: color-mix(in srgb, var(--color-steel) 28%, transparent);
+}
+
+.hairline-dark {
+  border-color: color-mix(in srgb, var(--color-paper) 18%, transparent);
+}
+
+input[type="range"] {
+  accent-color: var(--color-ember);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 2px;
+  background: var(--color-ember);
+  border: 3px solid var(--color-paper);
+  cursor: pointer;
+}
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -124,8 +96,16 @@ input[type="range"]::-webkit-slider-thumb {
   scrollbar-width: none;
 }
 
-/* Safe touch target padding for mobile accessibility */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
