@@ -1,42 +1,11 @@
 export const navLinks = [
-  { href: "/produk", label: "3D STUDIO" },
-  { href: "/teknologi", label: "ENGINEERING" },
-  { href: "/riset", label: "TEST DATA" },
-  { href: "/sop", label: "SOP MANUAL" },
-  { href: "/perawatan", label: "SERVICE" },
-  { href: "/dampak", label: "TRIALS & MEDIA" },
-  { href: "/tentang", label: "REGISTRY" },
-] as const;
-
-export const metrics = [
-  {
-    code: "CAPACITY",
-    label: "THROUGHPUT RATE",
-    value: "400–420",
-    unit: "PCS / HR",
-    benchmark: "+425% vs Manual (80-100)",
-  },
-  {
-    code: "QUALITY",
-    label: "DEFECT MARGIN",
-    value: "< 5.0",
-    unit: "% REJECT",
-    benchmark: "Reduced from 10–30% baseline",
-  },
-  {
-    code: "CYCLE",
-    label: "BATCH CYCLE TIME",
-    value: "46.5",
-    unit: "SECONDS",
-    benchmark: "Uniform roast (45–48s range)",
-  },
-  {
-    code: "READINESS",
-    label: "MATURITY RATING",
-    value: "TKT 8",
-    unit: "VERIFIED",
-    benchmark: "Kementerian Hukum RI #001429332",
-  },
+  { href: "/produk", label: "Produk" },
+  { href: "/teknologi", label: "Teknologi" },
+  { href: "/riset", label: "Riset" },
+  { href: "/sop", label: "SOP" },
+  { href: "/perawatan", label: "Perawatan" },
+  { href: "/dampak", label: "Dampak" },
+  { href: "/tentang", label: "Tentang" },
 ] as const;
 
 export const socials = {
@@ -47,5 +16,16 @@ export const socials = {
 };
 
 export const hki = "001429332";
-export const systemModel = "INTAN MK-II / 2026";
-export const institution = "UNIVERSITAS PADJADJARAN";
+export const systemModel = "INTAN MK-II";
+export const institution = "Universitas Padjadjaran";
+export const address =
+  "Kampus Jatinangor, Jl. Raya Bandung–Sumedang Km. 21, Sumedang, Jawa Barat 45363";
+export const videoId = "UZ4ZYx_NoIY";
+
+export const facts = {
+  capacity: "400–420 keping/jam",
+  cycle: "46,5 detik",
+  setpoint: "550–600 °C",
+  tkt: "TKT 8",
+  material: "SUS 304 food-grade",
+} as const;
